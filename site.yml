@@ -8,6 +8,22 @@
   remote_user: "{{ oracle_user }}"
   tasks:
 
-   - name: Show variables from dictionary
+   - name: Name
      debug:
-       var: binaries[weblogic12214]['patches']
+       msg: "{{ soa_binaries['weblogic12214']['name'] }}"
+
+   - name: Version
+     debug:
+       msg: "{{ soa_binaries['weblogic12214']['version'] }}"
+
+   - name: staging
+     debug:
+       msg: "{{ soa_binaries['weblogic12214']['staging'] }}"
+
+   - name: installer_name
+     debug:
+       msg: "{{ soa_binaries['weblogic12214']['installer_name'] }}"
+
+   - name: package
+     debug:
+       msg: "{{ soa_binaries['weblogic12214']['package'] }}"

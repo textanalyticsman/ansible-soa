@@ -28,9 +28,9 @@ soa_binaries:
     installer_name: fmw_12.2.1.4.0_wls.jar
     package: WEBLOGIC_12.2.1.4_V983364-01.zip
     patches:
-    "30970477":
-      staging: patches/stgweblogic12214
-      package: p30970477_122140_Generic.zip
+      "30970477":
+        staging: patches/stgweblogic12214
+        package: p30970477_122140_Generic.zip
   soa12214:
     name: Oracle SOA
     version: 12.2.1.4
