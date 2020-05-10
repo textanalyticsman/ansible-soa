@@ -1,0 +1,14 @@
+---
+---
+# ####################################################################################
+# This is the main playbook, which is used to call all the roles that will allow the 
+# installation of Oracle JDK, Oracle Weblogic and Oracle SOA
+# ####################################################################################
+
+- hosts: soa
+  remote_user: "{{ oracle_user }}"
+  tasks:
+
+   - name: Show variables from dictionary
+     debug:
+       var: binaries['weblogic12214']['patches']
