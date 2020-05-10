@@ -10,4 +10,4 @@
 
    - name: Show variables from dictionary
      debug:
-       var: binaries['weblogic12214']['patches']
+       var: binaries[weblogic12214]['patches']
