@@ -11,6 +11,8 @@ staging_directory: /u01/staging
 oracle_user: oracle
 # The home where Oracle products will be installed
 oracle_home: "/u01/{{ oracle_user }}/product"
+# Directory where patches are copy to
+patch_directory: "{{ staging_directory }}/patches"
 
 # This dictionary is used to configure all the installers needed to create an
 # Oracle SOA domain. 
@@ -28,9 +30,12 @@ soa_binaries:
     installer_name: fmw_12.2.1.4.0_wls.jar
     package: WEBLOGIC_12.2.1.4_V983364-01.zip
     patches:
-      "30970477":
-        staging: patches/stgweblogic12214
+      p1:
+        id: "30970477"
         package: p30970477_122140_Generic.zip
+      p2:
+        id: "28186730"           # To patch opatch
+        package: p28186730_139422_Generic.zip
   soa12214:
     name: Oracle SOA
     version: 12.2.1.4
@@ -38,11 +43,6 @@ soa_binaries:
     installer_name: fmw_12.2.1.4.0_soa.jar
     package: SOA_12.2.1.4_V983383-01.zip
     patches:
-      "30995852":
-        staging: patches/stgsoa12214
-        package: p30995852_122140_Generic.zip    
-  "28186730":
-    name: Opatch patch    
-    version: 13.9.4.2.2
-    staging: patches/opatch139422
-    package: p28186730_139422_Generic.zip
+      p1:
+        id: "30995852"
+        package: p30995852_122140_Generic.zip
