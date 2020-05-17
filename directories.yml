@@ -3,4 +3,4 @@
    remote_user: oracle
    tasks:
      - include_role:
-       name: directories
+         name: directories
