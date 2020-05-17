@@ -1,21 +1,16 @@
 os_settings
 ===========
 
-The goal of this roles is to set the Linux Operating System v7 according to the requirements provided by Oracle to install an Oracle database 12.2
+The goal of this roles is to set the Linux (CentOS in this case) Operating System v7 according to the requirements provided by Oracle to install an Oracle Fusion Middleware 12.2.1.4
 
 Requirements
 ------------
 
-You will need a machine with Redhat 7.7 and do not forget to execute this.
-
-sudo yum-config-manager --enable rhel-7-server-optional-rpms
-
-Next time, I will automate previous step. However, beyond the way to set this, this is needed.
+You will need a machine with Centos 7 and do not forget to execute this.
 
 Role Variables
 --------------
 os_packages, a list of OS packages installed on target(s) machines.
-sysctl_configurations, a dictionary, which represents the configurations applied on /etc/sysctl.conf before the installation of Oracle database.
 limits, a dictionary, which represents the soft and hard limits for processes and files to be set before installing Oracle database.
 
 Dependencies
@@ -27,7 +22,7 @@ Example Playbook
 
 This roles can be executed as is shown below.
 
-      - hosts: database
+      - hosts: soa
         remote_user: oracle
         tasks:
          - include_role:
