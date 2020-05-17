@@ -27,4 +27,7 @@
      - "{{ soa_binaries['jdk8u251']['staging'] }}"
      - "{{ soa_binaries['weblogic12214']['staging'] }}"
      - "{{ soa_binaries['soa12214']['staging'] }}"
+
+ # To copy installers and patches into staging directory
+ - name: "Copying installers into {{ staging_directory }}"
   

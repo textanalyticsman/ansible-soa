@@ -8,22 +8,30 @@
   remote_user: "{{ oracle_user }}"
   tasks:
 
-   - name: Name
-     debug:
-       msg: "{{ soa_binaries['weblogic12214']['name'] }}"
+  #  - name: Name
+  #    debug:
+  #      msg: "{{ soa_binaries['weblogic12214']['name'] }}"
 
-   - name: Version
-     debug:
-       msg: "{{ soa_binaries['weblogic12214']['version'] }}"
+  #  - name: Version
+  #    debug:
+  #      msg: "{{ soa_binaries['weblogic12214']['version'] }}"
 
-   - name: staging
-     debug:
-       msg: "{{ soa_binaries['weblogic12214']['staging'] }}"
+  #  - name: staging
+  #    debug:
+  #      msg: "{{ soa_binaries['weblogic12214']['staging'] }}"
 
-   - name: installer_name
-     debug:
-       msg: "{{ soa_binaries['weblogic12214']['installer_name'] }}"
+  #  - name: installer_name
+  #    debug:
+  #      msg: "{{ soa_binaries['weblogic12214']['installer_name'] }}"
 
-   - name: package
-     debug:
-       msg: "{{ soa_binaries['weblogic12214']['patches']['p1']['package'] }}"
+  #  - name: package
+  #    debug:
+  #      msg: "{{ soa_binaries['weblogic12214']['patches']['p1']['package'] }}"
+  
+   - name: Looping dictionaries
+     debug: 
+       msg: 
+         - "{{ item.1.staging }}"
+     with_subelements:
+      - "{{ soa_binaries }}"
+      - installers
