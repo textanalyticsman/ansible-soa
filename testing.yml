@@ -31,7 +31,6 @@
    - name: Looping dictionaries
      debug: 
        msg: 
-         - "{{ item.1.staging }}"
-     with_subelements:
+         - "{{ item.staging }}"
+     with_items:
       - "{{ soa_installers }}"
-      - installer

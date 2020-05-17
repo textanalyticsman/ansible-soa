@@ -16,39 +16,8 @@ oracle_home: "/u01/{{ oracle_user }}/product"
 # Directory where patches are copy to
 patch_directory: "{{ staging_directory }}/patches"
 
-# This dictionary is used to configure all the installers needed to create an
+# This list of dictionaries is used to configure all the installers needed to create an
 # Oracle SOA domain. 
-soa_binaries:
-  jdk8u251:
-    name: Oracle JDK
-    version: 8u251
-    java_home: "/u01/{{ oracle_user }}/java/jdk"
-    staging: stgjdk8u251         # To  create a directory in "{{ staging_directory }}"
-    installer_name: jdk-8u251-linux-x64.tar.gz
-  weblogic12214:
-    name: Oracle Weblogic 
-    version: 12.2.1.4
-    staging: stgweblogic12214    # To  create a directory in "{{ staging_directory }}"
-    installer_name: fmw_12.2.1.4.0_wls.jar
-    package: WEBLOGIC_12.2.1.4_V983364-01.zip
-    patches:
-      p1:
-        id: "30970477"
-        package: p30970477_122140_Generic.zip
-      p2:
-        id: "28186730"           # To patch opatch
-        package: p28186730_139422_Generic.zip
-  soa12214:
-    name: Oracle SOA
-    version: 12.2.1.4
-    staging: stgsoa12214         # To  create a directory in "{{ staging_directory }}"
-    installer_name: fmw_12.2.1.4.0_soa.jar
-    package: SOA_12.2.1.4_V983383-01.zip
-    patches:
-      p1:
-        id: "30995852"
-        package: p30995852_122140_Generic.zip
-
 soa_installers:
   - installer: jdk8u251
     name: Oracle JDK

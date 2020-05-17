@@ -18,16 +18,14 @@
  # To create directories inside staging directories
  - name: "Creating directories inside {{ staging_directory }}"
    file:
-     path: "{{ staging_directory }}/{{ item }}"
+     path: "{{ staging_directory }}/{{ item.staging }}"
      state: directory
      owner: "{{ oracle_user }}"
      group: "{{ oracle_group }}"
      mode: 0755
-   loop:
-     - "{{ soa_binaries['jdk8u251']['staging'] }}"
-     - "{{ soa_binaries['weblogic12214']['staging'] }}"
-     - "{{ soa_binaries['soa12214']['staging'] }}"
+   with_items:
+     - "{{ soa_installers }}"
 
  # To copy installers and patches into staging directory
- - name: "Copying installers into {{ staging_directory }}"
+# - name: "Copying installers into {{ staging_directory }}"
   
