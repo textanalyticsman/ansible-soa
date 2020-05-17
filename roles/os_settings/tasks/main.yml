@@ -1,0 +1,20 @@
+---
+# Tasks used to set the operating system parameters
+
+ - name: Installing Operating System packages on target machine(s)
+   yum:
+    name: "{{ os_packages }}"
+    state: present
+   when: ansible_os_family == 'CentOS'
+   become: true
+
+ - name: Setting limits for processes, files, etc.
+   pam_limits:
+     domain: "{{ oracle_user }}"
+     limit_type: "{{ item.value.lim_type }}"
+     limit_item: "{{ item.value.lim_item }}"
+     value: "{{ item.value.lim_value }}"
+   loop: "{{ lookup('dict', limits) }}"
+   notify:
+   - Rebooting machine
+   become: true

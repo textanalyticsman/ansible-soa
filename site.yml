@@ -3,3 +3,8 @@
 # This is the main playbook, which is used to call all the roles that will allow the
 # installation of Oracle JDK, Oracle Weblogic and Oracle SOA
 # ####################################################################################
+- hosts: soa
+  remote_user: oracle
+  tasks:
+   - include_role:
+       name: os_settings

@@ -1,3 +1,5 @@
 [soa]
 machine01.pegasus.net
 machine02.pegasus.net
+[database]
+machine05.pegasus.net
