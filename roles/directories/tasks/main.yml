@@ -1,0 +1,30 @@
+---
+# tasks file for directories
+
+ # To create some of the main directories used to install 
+ # Oracle Weblogic and SOA
+ - name: Creating main directories
+   file:
+     path: "{{ item }}"
+     state: directory
+     owner: "{{ oracle_user }}"
+     group: "{{ oracle_group }}"
+     mode: 0755
+   loop:
+     - "{{ staging_directory }}"
+     - "{{ oracle_home }}"
+     - "{{ patch_directory }}"
+
+ # To create directories inside staging directories
+ - name: "Creating directories inside {{ staging_directory }}"
+   file:
+     path: "{{ staging_directory }}/{{ item }}"
+     state: directory
+     owner: "{{ oracle_user }}"
+     group: "{{ oracle_group }}"
+     mode: 0755
+   loop:
+     - "{{ soa_binaries['jdk8u251']['staging'] }}"
+     - "{{ soa_binaries['weblogic12214']['staging'] }}"
+     - "{{ soa_binaries['soa12214']['staging'] }}"
+  

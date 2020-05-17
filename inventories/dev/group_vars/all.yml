@@ -9,6 +9,8 @@ source_directory: /u01/software
 staging_directory: /u01/staging
 # The user that will run Weblogic
 oracle_user: oracle
+# The oracle's group
+oracle_group: oinstall
 # The home where Oracle products will be installed
 oracle_home: "/u01/{{ oracle_user }}/product"
 # Directory where patches are copy to
