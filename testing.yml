@@ -33,5 +33,5 @@
        msg: 
          - "{{ item.1.staging }}"
      with_subelements:
-      - "{{ soa_binaries }}"
-      - installers
+      - "{{ soa_installers }}"
+      - installer
