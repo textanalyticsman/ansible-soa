@@ -26,6 +26,13 @@
    with_items:
      - "{{ soa_installers }}"
 
- # To copy installers and patches into staging directory
-# - name: "Copying installers into {{ staging_directory }}"
-  
+ # To copy installers into staging directory
+ - name: "Copying installers into {{ staging_directory }}"
+   copy:
+     src: "{{ source_directory }}/{{ item.filename }}"
+     dest: "{{ staging_directory }}/{{ item.staging }}"
+     owner: "{{ oracle_user }}"
+     group: "{{ oracle_group }}"
+     mode: '0755'
+   with_items:
+     - "{{ soa_installers }}"
