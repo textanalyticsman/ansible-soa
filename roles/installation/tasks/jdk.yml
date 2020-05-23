@@ -1,0 +1,18 @@
+  - name: Getting configuration to install products
+    set_fact:
+      install_java_home: "{{ soa_installers | json_query('[?installer == `jdk8u251`].java_home') }}"
+      install_java_staging: "{{ soa_installers | json_query('[?installer == `jdk8u251`].staging') }}"
+      install_java_zip: "{{ soa_installers | json_query('[?installer == `jdk8u251`].zipname') }}"
+      install_src_java: "{{ staging_directory }}/{{ install_java_staging }}/{{ install_java_zip }}"
+  
+  - name: Creting the JDK directory
+    file:
+      path: "{{ soa_installers | json_query('[?installer == `jdk8u251`].java_home') }}"
+      state: directory
+  
+  - name: Installing JDK
+    unarchive:
+      remote_src: yes
+      src: "{{ install_src_java }}"
+      dest: "{{install_java_home}}"
+      creates: "{{jdk_installed_flag}}"
