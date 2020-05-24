@@ -38,8 +38,8 @@ soa_installers:
     name: Oracle Weblogic 
     version: 12.2.1.4
     staging: stgweblogic12214    # To  create a directory in "{{ staging_directory }}"
-    filename: fmw_12.2.1.4.0_wls.jar
-    zipname: WEBLOGIC_12.2.1.4_V983364-01.zip
+    filename: fmw_12.2.1.4.0_infrastructure.jar
+    zipname: V983368-01.zip
     responsefile: "{{ response_directory }}/weblogic.rsp"
     memorysettings: -Xmx1g
     patches: 
