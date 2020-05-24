@@ -30,6 +30,6 @@
   # In the past it was Weblogic first and then SOA on top of Weblogic
   - name: "Installing Weblogic and SOA"
     command: "{{ install_java_home }}/bin/java \
-      -{{ install_soa_memory }} -jar {{ staging_directory }}/{{ install_soa_staging }}/{{ install_soa_file }} -silent \
+      {{ install_soa_memory }} -jar {{ staging_directory }}/{{ install_soa_staging }}/{{ install_soa_file }} -silent \
       -responseFile {{ install_soa_rsp_file }} \
       -invPtrLoc {{ oracle_inventory_file }}"
