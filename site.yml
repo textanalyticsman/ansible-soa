@@ -5,8 +5,7 @@
 # ####################################################################################
 - hosts: soa
   remote_user: oracle
-  tasks:
-   - include_role:
-       name: os_settings
-   - include: directories.yml
-   - include: installation.yml
+  
+- import_playbook: ossettings.yml
+- import_playbook: directories.yml
+- import_playbook: installation.yml
