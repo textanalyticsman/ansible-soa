@@ -18,7 +18,7 @@
 
   - name: "Using a template to create the SOA response file" # Actually the same for Weblogic and SOA
     template:
-      src: weblogic.rsp.j2
+      src: soa.rsp.j2
       dest: "{{ install_soa_rsp_file }}"
 
   # In OFM 12.2.1.4 Weblogic and SOA can be installed in just one step

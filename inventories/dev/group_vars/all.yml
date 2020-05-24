@@ -53,7 +53,7 @@ soa_installers:
     staging: stgsoa12214         # To  create a directory in "{{ staging_directory }}"
     filename: fmw_12.2.1.4.0_soa.jar
     zipname: SOA_12.2.1.4_V983383-01.zip
-    responsefile: "{{ response_directory }}/weblogic.rsp"
+    responsefile: "{{ response_directory }}/soa.rsp"
     memorysettings: -Xmx1g
     patches:
       - patch: "30995852"
