@@ -16,19 +16,14 @@
       dest: "{{ staging_directory }}/{{ install_soa_staging }}"
       creates: "{{ staging_directory }}/{{ install_soa_staging }}/{{ install_soa_file }}"
 
-  - name: "Using a template to create the Weblogic response file"
+  - name: "Using a template to create the SOA response file" # Actually the same for Weblogic and SOA
     template:
       src: weblogic.rsp.j2
       dest: "{{ install_soa_rsp_file }}"
 
-  - name: "Using a template to create the inventory"
-    template:
-      src: oraInst.loc.j2
-      dest: "{{ oracle_inventory_file }}"
-
   # In OFM 12.2.1.4 Weblogic and SOA can be installed in just one step
   # In the past it was Weblogic first and then SOA on top of Weblogic
-  - name: "Installing Weblogic and SOA"
+  - name: "Installing SOA"
     command: "{{ install_java_home }}/bin/java \
       {{ install_soa_memory }} -jar {{ staging_directory }}/{{ install_soa_staging }}/{{ install_soa_file }} -silent \
       -responseFile {{ install_soa_rsp_file }} \

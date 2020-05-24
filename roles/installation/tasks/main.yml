@@ -1,2 +1,3 @@
 - include_tasks: jdk.yml
-- include_tasks: weblogicsoa.yml
+- include_tasks: weblogic.yml
+- include_tasks: soa.yml
