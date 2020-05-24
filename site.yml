@@ -8,5 +8,5 @@
   tasks:
    - include_role:
        name: os_settings
-   - include: directories
-   - include: installation
+   - include: directories.yml
+   - include: installation.yml
