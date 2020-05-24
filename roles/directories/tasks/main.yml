@@ -12,8 +12,11 @@
      mode: 0755
    loop:
      - "{{ staging_directory }}"
+     - "{{ oracle_base }}"
      - "{{ oracle_home }}"
      - "{{ patch_directory }}"
+     - "{{ response_directory }}"
+     - "{{ oracle_inventory_dir }}"
 
  # To create directories inside staging directories
  - name: "Creating directories inside {{ staging_directory }}"
