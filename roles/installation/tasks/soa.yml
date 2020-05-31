@@ -22,11 +22,10 @@
       src: soa.rsp.j2
       dest: "{{ install_soa_rsp_file }}"
 
-  # In OFM 12.2.1.4 Weblogic and SOA can be installed in just one step
-  # In the past it was Weblogic first and then SOA on top of Weblogic
   - name: "Installing SOA"
     command: "{{ install_java_home }}/bin/java \
       {{ install_soa_memory }} -jar {{ staging_directory }}/{{ install_soa_staging }}/{{ install_soa_file }} -silent \
       -responseFile {{ install_soa_rsp_file }} \
       -invPtrLoc {{ oracle_inventory_file }}"
-    creates: "{{ install_soa_creates }}"
+    args:
+      creates: "{{ install_soa_creates }}"

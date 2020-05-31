@@ -27,11 +27,10 @@
       src: oraInst.loc.j2
       dest: "{{ oracle_inventory_file }}"
 
-  # In OFM 12.2.1.4 Weblogic and SOA can be installed in just one step
-  # In the past it was Weblogic first and then SOA on top of Weblogic
   - name: "Installing Weblogic"
     command: "{{ install_java_home }}/bin/java \
       {{ install_weblogic_memory }} -jar {{ staging_directory }}/{{ install_weblogic_staging }}/{{ install_weblogic_file }} -silent \
       -responseFile {{ install_weblogic_rsp_file }} \
       -invPtrLoc {{ oracle_inventory_file }}"
-    creates: "{{ install_weblogic_creates }}"
+    args:
+      creates: "{{ install_weblogic_creates }}"
