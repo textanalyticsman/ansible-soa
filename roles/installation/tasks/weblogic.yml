@@ -1,4 +1,4 @@
-  - name: Getting configuration to install Weblogic and SOA
+  - name: Getting configuration to install Weblogic
     set_fact:
       # Even thoug each expression returns just one value. I used "join" to convert the variable
       # into a string
@@ -8,6 +8,7 @@
       install_weblogic_file: "{{ soa_installers | json_query('[?installer == `weblogic12214`].filename')|join(',') }}"
       install_weblogic_rsp_file: "{{ soa_installers | json_query('[?installer == `weblogic12214`].responsefile')|join(',') }}"
       install_weblogic_memory: "{{ soa_installers | json_query('[?installer == `weblogic12214`].memorysettings')|join(',') }}"
+      install_weblogic_creates: "{{ soa_installers | json_query('[?installer == `weblogic12214`].createsfile')|join(',') }}"
 
   - name: Unzip Weblogic installer
     unarchive:
@@ -33,3 +34,4 @@
       {{ install_weblogic_memory }} -jar {{ staging_directory }}/{{ install_weblogic_staging }}/{{ install_weblogic_file }} -silent \
       -responseFile {{ install_weblogic_rsp_file }} \
       -invPtrLoc {{ oracle_inventory_file }}"
+    creates: "{{ install_weblogic_creates }}"

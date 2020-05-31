@@ -42,6 +42,7 @@ soa_installers:
     zipname: V983368-01.zip
     responsefile: "{{ response_directory }}/weblogic.rsp"
     memorysettings: -Xmx1g
+    createsfile: "{{ oracle_home }}/wlserver/server/bin/setWLSEnv.sh"
     patches: 
       - patch: "30970477"
         zipname: p30970477_122140_Generic.zip
@@ -55,6 +56,7 @@ soa_installers:
     zipname: SOA_12.2.1.4_V983383-01.zip
     responsefile: "{{ response_directory }}/soa.rsp"
     memorysettings: -Xmx1g
+    createsfile: "{{ oracle_home }}/soa/bin/soaversion.sh"
     patches:
       - patch: "30995852"
         zipname: p30995852_122140_Generic.zip
