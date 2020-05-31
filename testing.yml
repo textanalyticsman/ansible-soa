@@ -28,9 +28,17 @@
   #    debug:
   #      msg: "{{ soa_binaries['weblogic12214']['patches']['p1']['package'] }}"
   
-   - name: Looping dictionaries
+  # - name: Looping dictionaries
+  #   debug: 
+  #     msg: 
+  #       - "{{ item.staging }}"
+  #   with_items:
+  #    - "{{ soa_installers }}"
+
+   - name: Trying to get patch from nested dictionary
      debug: 
        msg: 
-         - "{{ item.staging }}"
-     with_items:
-      - "{{ soa_installers }}"
+         - "{{ soa_installers | json_query('[?installer == `weblogic12214`].patches') | json_query('[?patch == `28186730`].zipname')|join(',') }}"
+
+
+          
