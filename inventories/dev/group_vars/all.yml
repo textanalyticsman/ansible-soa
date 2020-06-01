@@ -48,6 +48,9 @@ soa_installers:
         zipname: p30970477_122140_Generic.zip
       - patch: "28186730"           # To patch opatch
         zipname: p28186730_139422_Generic.zip
+        id: 6880880
+        jarfile: opatch_generic.jar
+        createsfile: "{{ oracle_home }}/inventory/distributions/OPatch_13.9.4.2.2.xml"
   - installer: soa12214
     name: Oracle SOA
     version: 12.2.1.4
