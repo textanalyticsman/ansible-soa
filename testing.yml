@@ -35,10 +35,11 @@
   #   with_items:
   #    - "{{ soa_installers }}"
 
-   - name: Trying to get patch from nested dictionary
-     debug: 
-       msg: 
-         - "{{ soa_installers | json_query('[?installer == `weblogic12214`].patches') | json_query('[?patch == `28186730`].zipname')|join(',') }}"
+   - name: Setting list patches
+     set_fact:
+       list_patches: "{{ soa_installers | json_query('[?installer== `weblogic12214`][].patches[?patch!= `\"28186730\"`][]')  }}"
 
-
-          
+   - name: Looping list patches
+     debug:
+       msg: "{{ item.zipname }}"
+     loop: "{{ list_patches }}"
