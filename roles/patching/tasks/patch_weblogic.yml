@@ -1,36 +1,23 @@
-  - name: Getting configuration to install Weblogic
+  - name: Getting configuration to patch Weblogic
     set_fact:
-      # Even thoug each expression returns just one value. I used "join" to convert the variable
+      # This query extracts the list of patches for Weblogic
+      # This gets all the patches whose patch numnber is different from 28186730
+      # Why?
+      # This is because in my configuration file, I have put the Opatch patch and the
+      # Weblogic patches all together. I think this is something that should be improved in the 
+      # future
+      patch_list_patches:  "{{ soa_installers | json_query('[?installer== `weblogic12214`][].patches[?patch!= `\"28186730\"`][]')  }}"
+      # Even though each expression returns just one value. I used "join" to convert the variable
       # into a string
-      install_java_home: "{{ soa_installers | json_query('[?installer == `jdk8u251`].java_home')|join(',') }}"
-      install_weblogic_staging: "{{ soa_installers | json_query('[?installer == `weblogic12214`].staging')|join(',') }}"
-      install_weblogic_zip: "{{ soa_installers | json_query('[?installer == `weblogic12214`].zipname')|join(',') }}"
-      install_weblogic_file: "{{ soa_installers | json_query('[?installer == `weblogic12214`].filename')|join(',') }}"
-      install_weblogic_rsp_file: "{{ soa_installers | json_query('[?installer == `weblogic12214`].responsefile')|join(',') }}"
-      install_weblogic_memory: "{{ soa_installers | json_query('[?installer == `weblogic12214`].memorysettings')|join(',') }}"
-      install_weblogic_creates: "{{ soa_installers | json_query('[?installer == `weblogic12214`].createsfile')|join(',') }}"
+      java_home: "{{ soa_installers | json_query('[?installer == `jdk8u251`].java_home')|join(',') }}"
 
-  - name: Unzip Weblogic installer
+  - name: Unzip Weblogic patches
     unarchive:
       remote_src: yes
-      src: "{{ staging_directory }}/{{ install_weblogic_staging }}/{{ install_weblogic_zip }}"
-      dest: "{{ staging_directory }}/{{ install_weblogic_staging }}"
-      creates: "{{ staging_directory }}/{{ install_weblogic_staging }}/{{ install_weblogic_file }}"
+      src: "{{ patch_directory }}/{{ item.zipname }}"
+      dest: "{{ patch_directory }}"
+    loop: "{{ patch_list_patches }}"
 
-  - name: "Using a template to create the Weblogic response file"
-    template:
-      src: weblogic.rsp.j2
-      dest: "{{ install_weblogic_rsp_file }}"
-
-  - name: "Using a template to create the inventory"
-    template:
-      src: oraInst.loc.j2
-      dest: "{{ oracle_inventory_file }}"
-
-  - name: "Installing Weblogic"
-    command: "{{ install_java_home }}/bin/java \
-      {{ install_weblogic_memory }} -jar {{ staging_directory }}/{{ install_weblogic_staging }}/{{ install_weblogic_file }} -silent \
-      -responseFile {{ install_weblogic_rsp_file }} \
-      -invPtrLoc {{ oracle_inventory_file }}"
-    args:
-      creates: "{{ install_weblogic_creates }}"
+  - name: Applying Weblogic patches
+    command:  "{{ opatch_executable }} apply -jdk {{ java_home }}/bin/java -silent -oh {{oracle_home}} {{ patch_directory }}/{{item.patch}}"
+    loop: "{{ patch_list_patches }}"

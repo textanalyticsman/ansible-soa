@@ -23,6 +23,8 @@ patch_directory: "{{ staging_directory }}/patches"
 oracle_inventory_dir:  "{{ oracle_base }}/inventory"
 # Inventory file
 oracle_inventory_file: "{{ oracle_inventory_dir }}/oraInst.loc"
+# Opatch directory
+opatch_executable: "{{ oracle_home }}/OPatch/opatch"
 
 # This list of dictionaries is used to configure all the installers needed to create an
 # Oracle SOA domain. 

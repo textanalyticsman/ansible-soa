@@ -1,6 +1,6 @@
-  - name: Getting configuration to install SOA
+  - name: Getting configuration to patch SOA
     set_fact:
-      # Even thoug each expression returns just one value. I used "join" to convert the variable
+      # Even though each expression returns just one value. I used "join" to convert the variable
       # into a string
       install_java_home: "{{ soa_installers | json_query('[?installer == `jdk8u251`].java_home')|join(',') }}"
       install_soa_staging: "{{ soa_installers | json_query('[?installer == `soa12214`].staging')|join(',') }}"
