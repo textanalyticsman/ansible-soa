@@ -8,10 +8,13 @@
       # future
       # Square braces used to flat projections i.e. zipname[]
       # https://jmespath.org/tutorial.html#flatten-projections
-      patch_list_weblogic:  "{{ soa_installers | json_query('[?installer== `weblogic12214`][].patches[?patch!= `\"28186730\"`][]')  }}"
-      # This query extracts the list of patches for Weblogic
+      patch_list_weblogic: "{{ soa_installers | json_query('[?installer== `weblogic12214`][].patches[?patch!= `\"28186730\"`][]')  }}"
+      # This query extracts the list of patches for SOA
       # Square braces used to flat projections
-      patch_list_soa:  "{{ soa_installers | json_query('[?installer== `soa12214`][].patches[]')  }}"
+      patch_list_soa: "{{ soa_installers | json_query('[?installer== `soa12214`][].patches[]')  }}"
+      # Appeding the list of SOA patches to the list of Weblogic patches
+      # https://blog.crisp.se/2016/10/20/maxwenzin/how-to-append-to-lists-in-ansible
+      patches_list: "{{ patch_list_weblogic +  patch_list_soa }}"
       # Even though each expression returns just one value. I used "join" to convert the variable
       # into a string
       java_home: "{{ soa_installers | json_query('[?installer == `jdk8u251`].java_home')|join(',') }}"
@@ -19,12 +22,9 @@
   - name: Unzip Weblogic and SOA patches
     unarchive:
       remote_src: yes
-      src: "{{ patch_directory }}/{{ item[1] }}" # item[1] in this case gets the zipname i.e. "p30970477_122140_Generic.zip"
+      src: "{{ patch_directory }}/{{ item.zipname }}" # In this case gets the zipname i.e. "p30970477_122140_Generic.zip"
       dest: "{{ patch_directory }}"
-    # To loop through two or more lists at the same time
-    # https://serverfault.com/questions/987943/combine-multiple-dictionaries-with-a-list-into-one-for-looping-in-ansible
-    # https://stackoverflow.com/questions/55407094/ansible-whats-the-proper-syntax-for-loop-zip-when-combining-more-than-two-l
-    loop: "{{ patch_list_weblogic | zip(patch_list_soa) | list }}"
+    loop: "{{ patches_list }}"
 
   - name: Getting actual patches for Weblogic and SOA
     command:  "{{ opatch_executable }} lsinventory -jdk {{ java_home }} \
@@ -33,6 +33,6 @@
 
   - name: Applying Weblogic and SOA patches
     command:  "{{ opatch_executable }} apply -jdk {{ java_home }} -silent \
-      -oh {{oracle_home}} {{ patch_directory }}/{{ item[0.] }}" # item[0] in this case gets the pathc i.e. "30970477"
+      -oh {{oracle_home}} {{ patch_directory }}/{{ item.patch }}" # In this case gets the patch i.e. "30970477"
     when: not lsinventory is search("{{ item.patch }}")
-    loop: "{{ patch_list_weblogic | zip(patch_list_soa) | list }}"
+    loop: "{{ patches_list }}"
