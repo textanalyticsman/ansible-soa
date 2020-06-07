@@ -6,19 +6,34 @@
       # This is because in my configuration file, I have put the Opatch patch and the
       # Weblogic patches all together. I think this is something that should be improved in the 
       # future
-      patch_list_patches:  "{{ soa_installers | json_query('[?installer== `weblogic12214`][].patches[?patch!= `\"28186730\"`][]')  }}"
+      # Square braces used to flat projections i.e. zipname[]
+      # https://jmespath.org/tutorial.html#flatten-projections
+      patch_list_weblogic:  "{{ soa_installers | json_query('[?installer== `weblogic12214`][].patches[?patch!= `\"28186730\"`][]')  }}"
+      # This query extracts the list of patches for Weblogic
+      # Square braces used to flat projections
+      patch_list_soa:  "{{ soa_installers | json_query('[?installer== `soa12214`][].patches[]')  }}"
       # Even though each expression returns just one value. I used "join" to convert the variable
       # into a string
       java_home: "{{ soa_installers | json_query('[?installer == `jdk8u251`].java_home')|join(',') }}"
 
-  - name: Unzip Weblogic patches
+  - name: Unzip Weblogic and SOA patches
     unarchive:
       remote_src: yes
       src: "{{ patch_directory }}/{{ item.zipname }}"
       dest: "{{ patch_directory }}"
-    loop: "{{ patch_list_patches }}"
+    with_together:                  # To loop through two or more lists at the same time
+      - "{{ patch_list_weblogic }}"
+      - "{{ patch_list_soa }}"
 
-  - name: Applying Weblogic patches
+  - name: Getting actual patches for Weblogic and SOA
+    command:  "{{ opatch_executable }} lsinventory -jdk {{ java_home }} \
+      -oh {{oracle_home}}"
+    register: lsinventory
+
+  - name: Applying Weblogic and SOA patches
     command:  "{{ opatch_executable }} apply -jdk {{ java_home }} -silent \
-      -oh {{oracle_home}} {{ patch_directory }}/{{item.patch}}"
-    loop: "{{ patch_list_patches }}"
+      -oh {{oracle_home}} {{ patch_directory }}/{{ item.patch }}"
+    when: not lsinventory is search("{{ item.patch }}")
+    with_together:                  # To loop through two or more lists at the same time
+      - "{{ patch_list_weblogic }}"
+      - "{{ patch_list_soa }}"
