@@ -29,7 +29,7 @@
       dest: "{{ patch_directory }}"
     loop: "{{ patches_list }}"
 
-  - name: Getting actual patches for Weblogic and SOA
+  - name: Using lsinventory to get installed patches for Weblogic and SOA
     command:  "{{ opatch_executable }} lsinventory -jdk {{ java_home }} \
       -oh {{oracle_home}}"
     register: lsinventory
