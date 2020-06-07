@@ -19,7 +19,7 @@
   - name: Unzip Weblogic and SOA patches
     unarchive:
       remote_src: yes
-      src: "{{ patch_directory }}/{{ item.1 }}" # item.1 in this case gets the zipname i.e. "p30970477_122140_Generic.zip"
+      src: "{{ patch_directory }}/{{ item[1] }}" # item[1] in this case gets the zipname i.e. "p30970477_122140_Generic.zip"
       dest: "{{ patch_directory }}"
     # To loop through two or more lists at the same time
     # https://serverfault.com/questions/987943/combine-multiple-dictionaries-with-a-list-into-one-for-looping-in-ansible
@@ -33,6 +33,6 @@
 
   - name: Applying Weblogic and SOA patches
     command:  "{{ opatch_executable }} apply -jdk {{ java_home }} -silent \
-      -oh {{oracle_home}} {{ patch_directory }}/{{ item.0 }}" # item.1 in this case gets the pathc i.e. "30970477"
+      -oh {{oracle_home}} {{ patch_directory }}/{{ item[0.] }}" # item[0] in this case gets the pathc i.e. "30970477"
     when: not lsinventory is search("{{ item.patch }}")
     loop: "{{ patch_list_weblogic | zip(patch_list_soa) | list }}"
