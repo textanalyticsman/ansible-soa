@@ -12,12 +12,15 @@
       # This query extracts the list of patches for SOA
       # Square braces used to flat projections
       patch_list_soa: "{{ soa_installers | json_query('[?installer== `soa12214`][].patches[]')  }}"
-      # Appeding the list of SOA patches to the list of Weblogic patches
-      # https://blog.crisp.se/2016/10/20/maxwenzin/how-to-append-to-lists-in-ansible
-      patches_list: "{{ patch_list_weblogic +  patch_list_soa }}"
       # Even though each expression returns just one value. I used "join" to convert the variable
       # into a string
       java_home: "{{ soa_installers | json_query('[?installer == `jdk8u251`].java_home')|join(',') }}"
+
+  - name: Putting the list of patches all together
+    set_fact:
+      # Appeding the list of SOA patches to the list of Weblogic patches
+      # https://blog.crisp.se/2016/10/20/maxwenzin/how-to-append-to-lists-in-ansible
+      patches_list: "{{ patch_list_weblogic +  patch_list_soa }}"      
 
   - name: Unzip Weblogic and SOA patches
     unarchive:
