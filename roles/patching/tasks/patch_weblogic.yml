@@ -21,9 +21,10 @@
       remote_src: yes
       src: "{{ patch_directory }}/{{ item.zipname }}"
       dest: "{{ patch_directory }}"
-    with_together:                  # To loop through two or more lists at the same time
-      - "{{ patch_list_weblogic }}"
-      - "{{ patch_list_soa }}"
+    # To loop through two or more lists at the same time
+    # https://serverfault.com/questions/987943/combine-multiple-dictionaries-with-a-list-into-one-for-looping-in-ansible
+    # https://stackoverflow.com/questions/55407094/ansible-whats-the-proper-syntax-for-loop-zip-when-combining-more-than-two-l
+    loop: "{{ patch_list_weblogic | zip(patch_list_soa) | list }}"
 
   - name: Getting actual patches for Weblogic and SOA
     command:  "{{ opatch_executable }} lsinventory -jdk {{ java_home }} \
@@ -34,6 +35,4 @@
     command:  "{{ opatch_executable }} apply -jdk {{ java_home }} -silent \
       -oh {{oracle_home}} {{ patch_directory }}/{{ item.patch }}"
     when: not lsinventory is search("{{ item.patch }}")
-    with_together:                  # To loop through two or more lists at the same time
-      - "{{ patch_list_weblogic }}"
-      - "{{ patch_list_soa }}"
+    loop: "{{ patch_list_weblogic | zip(patch_list_soa) | list }}"
