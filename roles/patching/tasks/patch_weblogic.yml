@@ -19,5 +19,6 @@
     loop: "{{ patch_list_patches }}"
 
   - name: Applying Weblogic patches
-    command:  "{{ opatch_executable }} apply -jdk {{ java_home }}/bin/java -silent -oh {{oracle_home}} {{ patch_directory }}/{{item.patch}}"
+    command:  "{{ opatch_executable }} apply -jdk {{ java_home }} -silent \
+      -oh {{oracle_home}} {{ patch_directory }}/{{item.patch}}"
     loop: "{{ patch_list_patches }}"
