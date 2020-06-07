@@ -1,3 +1,2 @@
 - include_tasks: patch_opatch.yml
-- include_tasks: patch_weblogic.yml
-# - include_tasks: patch_soa.yml
+- include_tasks: patch_weblogic_soa.yml
