@@ -21,3 +21,4 @@
         'Enter the database password': "{{ db_password }}"
         'Enter the schema password': "{{ schema_password }}"
       timeout: 1200 # Expect timeout by default is 30s. Here, I am using 20 minutes as RCU is slow
+    no_log: yes
