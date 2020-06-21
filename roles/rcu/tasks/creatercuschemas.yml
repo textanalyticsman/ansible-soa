@@ -7,6 +7,8 @@
       schema_prefix: "{{ soa_domain | json_query('[][].rcu[].schemaprefix') | join(',') }}"
       same_password: "{{ soa_domain | json_query('[][].rcu[].samepasswordallusers[]') | join(' ') }}"
       list_components: "{{ soa_domain | json_query('[][].rcu[].components[]') | join(' ') }}"
+      db_password: "{{ soa_domain | json_query('[][].rcu[].dbpassword[]') | join(' ') }}"
+      schema_password: "{{ soa_domain | json_query('[][].rcu[].schemapassword[]') | join(' ') }}"
       
   - name: Executing RCU
     expect:
@@ -15,4 +17,6 @@
           -dbUser {{ db_user  }} -dbRole {{ db_role }} -schemaPrefix {{ schema_prefix }} \
           -useSamePasswordForAllSchemaUsers {{ same_password|lower }} {{ list_components }}"
       responses:
-        (.*)password(.*): "{{ vault_sys_password }}"
+        Question:
+          - "{{ db_password }}"
+          - "{{ schema_password }}"

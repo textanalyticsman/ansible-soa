@@ -72,8 +72,10 @@ soa_domain:
  - rcu:
     connectionstring: machine05.pegasus.net:1521:ofm12db
     dbuser: sys
+    dbpassword: "{{ vault_sys_password }}"
     dbrole: sysdba
     schemaprefix: SOAPEGASUS
+    schemapassword: "{{ vault_schema_password }}"
     samepasswordallusers: true
     components:
       - "-component MDS"

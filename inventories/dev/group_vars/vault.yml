@@ -1,2 +1,3 @@
 vault_sys_password: oracle123456
 vault_weblogic_password: weblogic123456
+vault_schema_password: schema123456
