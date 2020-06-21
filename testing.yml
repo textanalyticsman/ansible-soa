@@ -35,11 +35,10 @@
   #   with_items:
   #    - "{{ soa_installers }}"
 
-   - name: Setting list patches
-     set_fact:
-       list_patches: "{{ soa_installers | json_query('[?installer== `weblogic12214`][].patches[?patch!= `\"28186730\"`][]')  }}"
+   - name: Setting list RCU components
+     set_fact:       
+       list_components: "{{ soa_domain | json_query('[][].components[]') | join(' ') }}"
 
-   - name: Looping list patches
+   - name: Show
      debug:
-       msg: "{{ item.zipname }}"
-     loop: "{{ list_patches }}"
+       msg: "{{ list_components }}"

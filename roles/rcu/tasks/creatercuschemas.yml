@@ -1,0 +1,4 @@
+---
+  - name: Getting configuration to patch Weblogic
+    set_fact:
+      list_components: "{{ soa_domain | json_query('[][].components[]') | join(' ') }}"

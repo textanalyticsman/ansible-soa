@@ -65,3 +65,21 @@ soa_installers:
     patches:
       - patch: "30995852"
         zipname: p30995852_122140_Generic.zip
+
+soa_domain:
+ - rcu:
+    connectionstring: machine05.pegasus.net:1521:ofm12db
+    dbuser: sys
+    dbrole: sysdba
+    schemaprefix: SOAPEGASUS
+    samepasswordallusers: true
+    components:
+      - "-component MDS"
+      - "-component IAU"
+      - "-component IAU_APPEND"
+      - "-component IAU_VIEWER"
+      - "-component OPSS"
+      - "-component UCSUMS"
+      - "-component WLS"
+      - "-component SOAINFRA"
+   
