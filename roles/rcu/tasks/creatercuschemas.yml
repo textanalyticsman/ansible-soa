@@ -17,6 +17,5 @@
           -dbUser {{ db_user  }} -dbRole {{ db_role }} -schemaPrefix {{ schema_prefix }} \
           -useSamePasswordForAllSchemaUsers {{ same_password|lower }} {{ list_components }}"
       responses:
-        Question:
-          - "{{ db_password }}"
-          - "{{ schema_password }}"
+        (?i)sys: "{{ db_password }}"
+        (?i)schema: "{{ schema_password }}"
