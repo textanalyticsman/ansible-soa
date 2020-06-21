@@ -9,9 +9,10 @@
       list_components: "{{ soa_domain | json_query('[][].rcu[].components[]') | join(' ') }}"
       
   - name: Executing RCU
-    command:
-      "{{ oracle_common }}/bin/rcu -silent -createRepository -connectString {{ connection_string }} \
-         -dbUser {{ db_user  }} -dbRole {{ db_role }} -schemaPrefix {{ schema_prefix }} \
-         -useSamePasswordForAllSchemaUsers {{ same_password|lower }} {{ list_components }}"
-    responses:
-      (.*)password(.*): "{{ vault_sys_password }}"
+    expect:
+      command:
+        "{{ oracle_common }}/bin/rcu -silent -createRepository -connectString {{ connection_string }} \
+          -dbUser {{ db_user  }} -dbRole {{ db_role }} -schemaPrefix {{ schema_prefix }} \
+          -useSamePasswordForAllSchemaUsers {{ same_password|lower }} {{ list_components }}"
+      responses:
+        (.*)password(.*): "{{ vault_sys_password }}"
