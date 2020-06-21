@@ -18,3 +18,7 @@
    notify:
    - Rebooting machine
    become: true
+
+ - name: Installing Pexpect
+   pip:
+     name: pexpect

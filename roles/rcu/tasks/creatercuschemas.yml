@@ -6,10 +6,12 @@
       db_role: "{{ soa_domain | json_query('[][].rcu[].dbrole') | join(',') }}"
       schema_prefix: "{{ soa_domain | json_query('[][].rcu[].schemaprefix') | join(',') }}"
       same_password: "{{ soa_domain | json_query('[][].rcu[].samepasswordallusers[]') | join(' ') }}"
-      list_components: "{{ soa_domain | json_query('[][].components[]') | join(' ') }}"
-
+      list_components: "{{ soa_domain | json_query('[][].rcu[].components[]') | join(' ') }}"
+      
   - name: Executing RCU
     command:
       "{{ oracle_common }}/bin/rcu -silent -createRepository -connectString {{ connection_string }} \
          -dbUser {{ db_user  }} -dbRole {{ db_role }} -schemaPrefix {{ schema_prefix }} \
          -useSamePasswordForAllSchemaUsers {{ same_password|lower }} {{ list_components }}"
+    responses:
+      (.*)password(.*): "{{ vault_sys_password }}"

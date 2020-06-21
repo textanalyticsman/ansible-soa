@@ -37,7 +37,7 @@
 
    - name: Setting list RCU components
      set_fact:       
-       list_components: "{{ soa_domain | json_query('[][].components[]') | join(' ') }}"
+       list_components: "{{ soa_domain | json_query('[][].rcu[].components[]') | join(' ') }}"
 
    - name: Show
      debug:
