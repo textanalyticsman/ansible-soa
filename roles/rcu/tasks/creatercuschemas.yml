@@ -1,4 +1,15 @@
 ---
   - name: Getting configuration to patch Weblogic
     set_fact:
+      connection_string: "{{ soa_domain | json_query('[][].rcu[].connectionstring') | join(',') }}"
+      db_user: "{{ soa_domain | json_query('[][].rcu[].dbuser') | join(',') }}"
+      db_role: "{{ soa_domain | json_query('[][].rcu[].dbrole') | join(',') }}"
+      schema_prefix: "{{ soa_domain | json_query('[][].rcu[].schemaprefix') | join(',') }}"
+      same_password: "{{ soa_domain | json_query('[][].rcu[].samepasswordallusers[]') | join(' ') }}"
       list_components: "{{ soa_domain | json_query('[][].components[]') | join(' ') }}"
+
+  - name: Executing RCU
+    command:
+      "{{ oracle_common }}/bin/rcu -silent -createRepository -connectString {{ connection_string }} \
+         -dbUser {{ db_user  }} -dbRole {{ db_role }} -schemaPrefix {{ schema_prefix }} \
+         -useSamePasswordForAllSchemaUsers {{ same_password|lower }} {{ list_components }}"

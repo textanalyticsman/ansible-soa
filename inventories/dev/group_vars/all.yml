@@ -17,6 +17,8 @@ oracle_group: oinstall
 oracle_base: "/u01/{{ oracle_user }}/product"
 # The Oracle home for Weblogic and SOA
 oracle_home: "{{ oracle_base }}/fmw12214"
+# The Oracle common path
+oracle_common: "{{ oracle_home }}/oracle_common"
 # Directory where patches are copy to
 patch_directory: "{{ staging_directory }}/patches"
 # Directory for Oracle's inventory

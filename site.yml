@@ -10,3 +10,4 @@
 - import_playbook: directories.yml
 - import_playbook: installation.yml
 - import_playbook: patching.yml
+- import_playbook: rcu.yml
