@@ -29,3 +29,4 @@
  - name: Using pip to install Pexpect
    pip:
      name: pexpect
+   become: true
