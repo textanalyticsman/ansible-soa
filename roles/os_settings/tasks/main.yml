@@ -19,6 +19,13 @@
    - Rebooting machine
    become: true
 
- - name: Installing Pexpect
+ - name: Installing pip for Python
+   yum:
+    name: python-pip
+    state: present
+   when: ansible_os_family == 'RedHat'
+   become: true
+
+ - name: Using pip to install Pexpect
    pip:
      name: pexpect

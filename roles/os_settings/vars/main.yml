@@ -33,7 +33,6 @@ os_packages:
   - redhat-lsb-core
   - openssl
   - epel-release
-  - python-pip
 
 # Number of processes and open files
 limits:
