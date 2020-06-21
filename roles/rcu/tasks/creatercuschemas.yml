@@ -1,5 +1,5 @@
 ---
-  - name: Getting configuration to patch Weblogic
+  - name: Getting configuration to run RCU
     set_fact:
       connection_string: "{{ soa_domain | json_query('[][].rcu[].connectionstring') | join(',') }}"
       db_user: "{{ soa_domain | json_query('[][].rcu[].dbuser') | join(',') }}"
