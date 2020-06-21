@@ -9,6 +9,7 @@
       list_components: "{{ soa_domain | json_query('[][].rcu[].components[]') | join(' ') }}"
       db_password: "{{ soa_domain | json_query('[][].rcu[].dbpassword[]') | join(' ') }}"
       schema_password: "{{ soa_domain | json_query('[][].rcu[].schemapassword[]') | join(' ') }}"
+    no_log: yes
       
   - name: Executing RCU
     expect:
@@ -19,4 +20,3 @@
       responses:
         'Enter the database password': "{{ db_password }}"
         'Enter the schema password': "{{ schema_password }}"
-    no_log: true
