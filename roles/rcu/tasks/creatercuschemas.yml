@@ -10,7 +10,7 @@
       db_password: "{{ soa_domain | json_query('[][].rcu[].dbpassword[]') | join(' ') }}"
       schema_password: "{{ soa_domain | json_query('[][].rcu[].schemapassword[]') | join(' ') }}"
     no_log: yes
-      
+
   - name: Executing RCU
     expect:
       command:
@@ -22,3 +22,10 @@
         'Enter the schema password': "{{ schema_password }}"
       timeout: 1200 # Expect timeout by default is 30s. Here, I am using 20 minutes as RCU is slow
     no_log: yes
+    register: rcu_output
+    failed_when: "'ERROR - RCU' in rcu_output.stdout and 'CAUSE - RCU-6016' not in rcu_output.stdout"
+
+  - name: Show warning if schemas have been created before
+    debug:
+      msg: "Schemas with prefix {{ schema_prefix }} have been created before.Thus, RCU creation has been skipped"
+    when: "'CAUSE - RCU-6016' in rcu_output.stdout"
