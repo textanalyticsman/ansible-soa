@@ -1,0 +1,39 @@
+#jinja2: lstrip_blocks: True
+{% set extensionTemplates = soa_domain | json_query('[?template==`JRF_12213_TEMPLATES`][].extensiontemplates')%}
+{% set servers = soa_domain | json_query('[][servers][][]')%}
+
+
+print('{{extensionTemplates}}')
+
+{% for element in extensionTemplates %}
+  {{ element }}
+{% endfor %}
+
+{% for element in servers %}
+  {{ element.name }}
+{% endfor %}
+
+
+SERVERS = {
+{% for element in servers %}      
+    '{{ element.name }}':
+    {
+        'ListenAddress': '{{element.listenaddress}}',
+        'ListenPort': '{{ element.listenport }}',
+        'Machine': '{{ element.machine }}',
+        'Cluster': '{{ element.cluster }}'
+    }{% if loop.nextitem is defined %},{% endif %}        
+{% endfor %}
+}
+
+    SERVERS = {
+    {% for element in servers %}      
+        '{{ element.name }}':
+        {
+            'ListenAddress': '{{element.listenaddress}}',
+            'ListenPort': '{{ element.listenport }}',
+            'Machine': '{{ element.machine }}',
+            'Cluster': '{{ element.cluster }}'
+        }{% if loop.nextitem is defined %},{% endif %}        
+    {% endfor %}
+    }

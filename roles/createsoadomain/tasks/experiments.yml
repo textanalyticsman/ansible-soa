@@ -1,0 +1,14 @@
+---
+
+  - name: Template to create Python script(s)
+    template:
+      src: experiments.py.j2
+      dest: "{{ oracle_jinja_templates }}/experiments.py"
+      
+  - name: Template to generate createSOADomain.py script
+    template:
+      src: createSOADomain.py.j2
+      dest: "{{ oracle_jinja_templates }}/createSOADomain.py"
+#  - name: Executing RCU
+#    command:
+#      "python {{ oracle_jinja_templates }}/experiments.py"

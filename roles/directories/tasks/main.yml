@@ -17,6 +17,7 @@
      - "{{ patch_directory }}"
      - "{{ response_directory }}"
      - "{{ oracle_inventory_dir }}"
+     - "{{ oracle_jinja_templates }}"
 
  # To create directories inside staging directories
  - name: "Creating directories inside {{ staging_directory }}"

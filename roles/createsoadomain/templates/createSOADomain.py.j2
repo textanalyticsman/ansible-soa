@@ -1,0 +1,246 @@
+#jinja2: lstrip_blocks: True
+
+import os
+import sys
+
+import com.oracle.cie.domain.script.jython.WLSTException as WLSTException
+
+class SOA12213Provisioner:
+
+# I am taking the sources code from below link
+# https://docs.oracle.com/en/middleware/fusion-middleware/12.2.1.3/insoa/configuring-product-domain.html#GUID-081C1379-157C-4EC5-B52C-7461A19985F4
+# I am just adding some modifications to build Python dictionaries (MACHINES, CLUSTERS, etc.)usng YML configuration file
+# as an input and Jinja2 templating as a parser
+# I am also passing parameters directly as I do not expect a user to execute this
+
+{% set machines = soa_domain | json_query('[][machines][][]')%}
+{% set clusters = soa_domain | json_query('[][clusters][][]')%}
+{% set servers = soa_domain | json_query('[][servers][][]')%}
+{% set jfrTemplates = soa_domain | json_query('[?template==`JRF_12213_TEMPLATES`][]')%}
+{% set soaTemplates = soa_domain | json_query('[?template==`SOA_12213_TEMPLATES`][]')%}
+
+    MACHINES = {
+    {% for element in machines %}      
+        '{{ element.name }}':
+        {
+            'NMType': '{{element.nmtype}}',
+            'ListenAddress': '{{ element.listenaddress }}',
+            'ListenPort': '{{ element.listenport }}'
+        }{% if loop.nextitem is defined %},{% endif %}        
+    {% endfor %}
+    }
+
+    CLUSTERS = {
+    {% for element in clusters %}      
+        '{{ element.name }}':
+        {}{% if loop.nextitem is defined %},{% endif %}        
+    {% endfor %}
+    }    
+
+    SERVERS = {
+    {% for element in servers %}      
+        '{{ element.name }}':
+        {
+            'ListenAddress': '{{element.listenaddress}}',
+            'ListenPort': '{{ element.listenport }}',
+            'Machine': '{{ element.machine }}',
+            'Cluster': '{{ element.cluster }}'
+        }{% if loop.nextitem is defined %},{% endif %}        
+    {% endfor %}
+    }
+
+    JRF_12213_TEMPLATES = {
+    {% for element in jfrTemplates %}      
+        'baseTemplate': '{{element.basetemplate}}',
+        'extensionTemplates': {{ element.extensiontemplates }},
+        'serverGroupsToTarget': {{ element.servergroups }}
+    {% endfor %}
+    }
+
+    SOA_12213_TEMPLATES = {
+    {% for element in soaTemplates %}      
+        'baseTemplate': '{{element.basetemplate}}',
+        'extensionTemplates': {{ element.extensiontemplates }},
+        'serverGroupsToTarget': {{ element.servergroups }}
+    {% endfor %}
+    }
+
+    def __init__(self, oracleHome, javaHome, domainParentDir):
+        self.oracleHome = self.validateDirectory(oracleHome)
+        self.javaHome = self.validateDirectory(javaHome)
+        self.domainParentDir = self.validateDirectory(domainParentDir, create=True)
+        return
+
+    def createSoaDomain(self, name, user, password, db, dbPrefix, dbPassword):
+        domainHome = self.createBaseDomain(name, user, password)
+        self.extendDomain(domainHome, db, dbPrefix, dbPassword)
+
+
+    def createBaseDomain(self, name, user, password):
+        baseTemplate = self.replaceTokens(self.JRF_12213_TEMPLATES['baseTemplate'])
+
+        readTemplate(baseTemplate)
+        setOption('DomainName', name)
+        setOption('JavaHome', self.javaHome)
+        setOption('ServerStartMode', 'prod')
+        set('Name', domainName)
+        cd('/Security/' + domainName + '/User/weblogic')
+        set('Name', user)
+        set('Password', password)
+
+        print 'Creating cluster...'
+        for cluster in self.CLUSTERS:
+            cd('/')
+            create(cluster, 'Cluster')
+            cd('Cluster/' + cluster)
+            for param in  self.CLUSTERS[cluster]:
+                set(param, self.CLUSTERS[cluster][param])
+
+        print 'Creating Node Managers...'
+        for machine in self.MACHINES:
+            cd('/')
+            create(machine, 'Machine')
+            cd('Machine/' + machine)
+            create(machine, 'NodeManager')
+            cd('NodeManager/' + machine)
+            for param in self.MACHINES[machine]:
+                set(param, self.MACHINES[machine][param])
+
+        print 'Creating Servers...'
+        for server in self.SERVERS:
+            cd('/')
+            if server == 'AdminServer':
+            	cd('Server/' + server)
+            	for param in self.SERVERS[server]:
+            		set(param, self.SERVERS[server][param])
+                continue
+            create(server, 'Server')
+            cd('Server/' + server)
+            for param in self.SERVERS[server]:
+                set(param, self.SERVERS[server][param])
+
+        setOption('OverwriteDomain', 'true')
+        domainHome = self.domainParentDir + '/' + name
+
+        print 'Writing base domain...'
+        writeDomain(domainHome)
+        closeTemplate()
+        print 'Base domain created at ' + domainHome
+        return domainHome
+
+
+    def extendDomain(self, domainHome, db, dbPrefix, dbPassword):
+        print 'Extending domain at ' + domainHome
+        readDomain(domainHome)
+        setOption('AppDir', self.domainParentDir + '/applications')
+
+        print 'Applying JRF templates...'
+        for extensionTemplate in self.JRF_12213_TEMPLATES['extensionTemplates']:
+            addTemplate(self.replaceTokens(extensionTemplate))
+
+        print 'Applying SOA templates...'
+        for extensionTemplate in self.SOA_12213_TEMPLATES['extensionTemplates']:
+            addTemplate(self.replaceTokens(extensionTemplate))
+
+        print 'Extension Templates added'
+
+        print 'Configuring the Service Table DataSource...'
+        fmwDb = 'jdbc:oracle:thin:@' + db
+        cd('/JDBCSystemResource/LocalSvcTblDataSource/JdbcResource/LocalSvcTblDataSource')
+        cd('JDBCDriverParams/NO_NAME_0')
+        set('DriverName', 'oracle.jdbc.OracleDriver')
+        set('URL', fmwDb)
+        set('PasswordEncrypted', dbPassword)
+
+        stbUser = dbPrefix + '_STB'
+        cd('Properties/NO_NAME_0/Property/user')
+        set('Value', stbUser)
+
+        print 'Getting Database Defaults...'
+        getDatabaseDefaults()
+
+        print 'Targeting Server Groups...'
+        serverGroupsToTarget = list(self.JRF_12213_TEMPLATES['serverGroupsToTarget'])
+        serverGroupsToTarget.extend(self.SOA_12213_TEMPLATES['serverGroupsToTarget'])
+        cd('/')
+        for server in self.SERVERS:
+            if not server == 'AdminServer':
+                setServerGroups(server, serverGroupsToTarget)
+                print "Set CoherenceClusterSystemResource to defaultCoherenceCluster for server:" + server
+                cd('/Servers/' + server)
+                set('CoherenceClusterSystemResource', 'defaultCoherenceCluster')
+
+        cd('/')
+        for cluster in self.CLUSTERS:
+            print "Set CoherenceClusterSystemResource to defaultCoherenceCluster for cluster:" + cluster
+            cd('/Cluster/' + cluster)
+            set('CoherenceClusterSystemResource', 'defaultCoherenceCluster')
+        
+        print "Set WLS clusters as target of defaultCoherenceCluster:[" + ",".join(self.CLUSTERS) + "]"
+        cd('/CoherenceClusterSystemResource/defaultCoherenceCluster')
+        set('Target', ",".join(self.CLUSTERS))
+		 
+        print 'Preparing to update domain...'
+        updateDomain()
+        print 'Domain updated successfully'
+        closeDomain()
+        return
+
+
+    ###########################################################################
+    # Helper Methods                                                          #
+    ###########################################################################
+
+    def validateDirectory(self, dirName, create=False):
+        directory = os.path.realpath(dirName)
+        if not os.path.exists(directory):
+            if create:
+                os.makedirs(directory)
+            else:
+                message = 'Directory ' + directory + ' does not exist'
+                raise WLSTException(message)
+        elif not os.path.isdir(directory):
+            message = 'Directory ' + directory + ' is not a directory'
+            raise WLSTException(message)
+        return self.fixupPath(directory)
+
+
+    def fixupPath(self, path):
+        result = path
+        if path is not None:
+            result = path.replace('\\', '/')
+        return result
+
+
+    def replaceTokens(self, path):
+        result = path
+        if path is not None:
+            result = path.replace('@@ORACLE_HOME@@', oracleHome)
+        return result
+
+
+#############################
+# Entry point to the script #
+#############################
+
+oracleHome = '{{ oracle_home }}'
+
+javaHome = '"{{ soa_installers | json_query('[?installer == `jdk8u251`].java_home')|join(',') }}"'
+
+domainParentDir = '{{ soa_domain | json_query('[][home][][].parentdir') }}'
+
+domainName = '{{ soa_domain | json_query('[][home][][].domainname') }}'
+
+domainUser = '{{ soa_domain | json_query('[][home][][].domainuser') }}'
+
+domainPassword = '{{ soa_domain | json_query('[][home][][].domainpassword') }}'
+
+rcuDb = '{{ soa_domain | json_query('[][rcu][][].connectionstring') }}'
+
+rcuSchemaPrefix = '{{ soa_domain | json_query('[][rcu][][].schemaprefix') }}'
+
+rcuSchemaPassword = '{{ soa_domain | json_query('[][rcu][][].schemapassword') }}'
+
+
+provisioner = SOA12213Provisioner(oracleHome, javaHome, domainParentDir)
+provisioner.createSoaDomain(domainName, domainUser, domainPassword, rcuDb, rcuSchemaPrefix, rcuSchemaPassword)

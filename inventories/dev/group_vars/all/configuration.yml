@@ -27,6 +27,8 @@ oracle_inventory_dir:  "{{ oracle_base }}/inventory"
 oracle_inventory_file: "{{ oracle_inventory_dir }}/oraInst.loc"
 # Opatch directory
 opatch_executable: "{{ oracle_home }}/OPatch/opatch"
+# Directory to save Jinja templates
+oracle_jinja_templates: "/u01/{{ oracle_user }}/templates"
 
 # This list of dictionaries is used to configure all the installers needed to create an
 # Oracle SOA domain. 
@@ -69,21 +71,73 @@ soa_installers:
         zipname: p30995852_122140_Generic.zip
 
 soa_domain:
- - rcu:
-    connectionstring: machine05.pegasus.net:1521:ofm12db
-    dbuser: sys
-    dbpassword: "{{ vault_sys_password }}"
-    dbrole: sysdba
-    schemaprefix: SOAPEGASUS
-    schemapassword: "{{ vault_schema_password }}"
-    samepasswordallusers: true
-    components:
-      - "-component MDS"
-      - "-component IAU"
-      - "-component IAU_APPEND"
-      - "-component IAU_VIEWER"
-      - "-component OPSS"
-      - "-component UCSUMS"
-      - "-component WLS"
-      - "-component SOAINFRA"
-   
+  - home:
+      domainname: soa_atenea
+      parentdir: "/u01/{{ oracle_user }}/domains"
+      domainuser: weblogic
+      domainpassword: "{{ vault_weblogic_password }}"
+  - rcu:
+      connectionstring: machine05.pegasus.net:1521:ofm12db
+      dbuser: sys
+      dbpassword: "{{ vault_sys_password }}"
+      dbrole: sysdba
+      schemaprefix: SOAPEGASUS
+      schemapassword: "{{ vault_schema_password }}"
+      samepasswordallusers: true
+      components:
+        - "-component MDS"
+        - "-component IAU"
+        - "-component IAU_APPEND"
+        - "-component IAU_VIEWER"
+        - "-component OPSS"
+        - "-component UCSUMS"
+        - "-component WLS"
+        - "-component SOAINFRA"
+  - servers:
+    - name: AdminServer
+      listenaddress: machine01.pegasus.net
+      listenport: 7001
+      machine: machine01
+      cluster: ''  
+    - name: soa_server01
+      listenaddress: machine02.pegasus.net
+      listenport: 8001
+      machine: machine02
+      cluster: soa_cluster
+    - name: soa_server02
+      listenaddress: machine03.pegasus.net
+      listenport: 8001
+      machine: machine03
+      cluster: soa_cluster
+  - clusters:
+    - name: soa_cluster
+  - machines:
+    - name: machine01
+      nmtype: SSL
+      listenaddress: machine01.pegasus.net
+      listenport: 5759
+    - name: machine02
+      nmtype: SSL
+      listenaddress: machine02.pegasus.net
+      listenport: 5759
+    - name: machine03
+      nmtype: SSL
+      listenaddress: machine03.pegasus.net
+      listenport: 5759
+  - template: JRF_12213_TEMPLATES
+    basetemplate: "{{ oracle_home }}/wlserver/common/templates/wls/wls.jar"
+    extensiontemplates:
+      - "{{ oracle_home }}/oracle_common/common/templates/wls/oracle.jrf_template.jar"
+      - "{{ oracle_home }}/oracle_common/common/templates/wls/oracle.jrf.ws.async_template.jar"
+      - "{{ oracle_home }}/oracle_common/common/templates/wls/oracle.wsmpm_template.jar"
+      - "{{ oracle_home }}/oracle_common/common/templates/wls/oracle.ums_template.jar"
+      - "{{ oracle_home }}/em/common/templates/wls/oracle.em_wls_template.jar"
+    servergroups:
+      - JRF-MAN-SVR
+      - WSMPM-MAN-SVR
+  - template: SOA_12213_TEMPLATES
+    basetemplate: ""
+    extensiontemplates:
+      - "{{ oracle_home }}/soa/common/templates/wls/oracle.soa_template.jar"
+    servergroups:
+      - SOA-MGD-SVRS-ONLY

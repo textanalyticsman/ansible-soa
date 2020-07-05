@@ -35,10 +35,16 @@
   #   with_items:
   #    - "{{ soa_installers }}"
 
-   - name: Setting list RCU components
-     set_fact:       
-       list_components: "{{ soa_domain | json_query('[][].rcu[].components[]') | join(' ') }}"
+  # - name: Setting list RCU components
+  #   set_fact:       
+  #     list_components: "{{ soa_domain | json_query('[][].rcu[].components[]') | join(' ') }}"
 
-   - name: Show
-     debug:
-       msg: "{{ list_components }}"
+  # - name: Show
+  #   debug:
+  #     msg: "{{ list_components }}"
+
+  #- include_role:
+  #    name: directories
+
+  - include_role:
+      name: createsoadomain
