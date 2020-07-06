@@ -25,6 +25,7 @@
     register: rcu_output
     # RCU-6016 means the schemas with given prefix are in the database
     failed_when: "'ERROR - RCU' in rcu_output.stdout and 'CAUSE - RCU-6016' not in rcu_output.stdout"
+    changed_when: false
 
   - name: Show warning if schemas have been created before
     debug:

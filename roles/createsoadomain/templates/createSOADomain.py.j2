@@ -25,7 +25,7 @@ class SOA12213Provisioner:
         {
             'NMType': '{{element.nmtype}}',
             'ListenAddress': '{{ element.listenaddress }}',
-            'ListenPort': '{{ element.listenport }}'
+            'ListenPort': {{ element.listenport }}
         }{% if loop.nextitem is defined %},{% endif %}        
     {% endfor %}
     }
@@ -42,10 +42,12 @@ class SOA12213Provisioner:
         '{{ element.name }}':
         {
             'ListenAddress': '{{element.listenaddress}}',
-            'ListenPort': '{{ element.listenport }}',
-            'Machine': '{{ element.machine }}',
+            'ListenPort': {{ element.listenport }},
+            'Machine': '{{ element.machine }}',            
+            {% if element.cluster != "" %}
             'Cluster': '{{ element.cluster }}'
-        }{% if loop.nextitem is defined %},{% endif %}        
+            {% endif %}             
+        }{% if loop.nextitem is defined %},{% endif %} 
     {% endfor %}
     }
 
@@ -225,21 +227,21 @@ class SOA12213Provisioner:
 
 oracleHome = '{{ oracle_home }}'
 
-javaHome = '"{{ soa_installers | json_query('[?installer == `jdk8u251`].java_home')|join(',') }}"'
+javaHome = '{{ soa_installers | json_query('[?installer == `jdk8u251`].java_home')|join(',') }}'
 
-domainParentDir = '{{ soa_domain | json_query('[][home][][].parentdir') }}'
+domainParentDir = '{{ soa_domain | json_query('[][home][][].parentdir')|join(',') }}'
 
-domainName = '{{ soa_domain | json_query('[][home][][].domainname') }}'
+domainName = '{{ soa_domain | json_query('[][home][][].domainname')|join(',') }}'
 
-domainUser = '{{ soa_domain | json_query('[][home][][].domainuser') }}'
+domainUser = '{{ soa_domain | json_query('[][home][][].domainuser')|join(',') }}'
 
-domainPassword = '{{ soa_domain | json_query('[][home][][].domainpassword') }}'
+domainPassword = '{{ soa_domain | json_query('[][home][][].domainpassword')|join(',') }}'
 
-rcuDb = '{{ soa_domain | json_query('[][rcu][][].connectionstring') }}'
+rcuDb = '{{ soa_domain | json_query('[][rcu][][].connectionstring')|join(',') }}'
 
-rcuSchemaPrefix = '{{ soa_domain | json_query('[][rcu][][].schemaprefix') }}'
+rcuSchemaPrefix = '{{ soa_domain | json_query('[][rcu][][].schemaprefix')|join(',') }}'
 
-rcuSchemaPassword = '{{ soa_domain | json_query('[][rcu][][].schemapassword') }}'
+rcuSchemaPassword = '{{ soa_domain | json_query('[][rcu][][].schemapassword')|join(',') }}'
 
 
 provisioner = SOA12213Provisioner(oracleHome, javaHome, domainParentDir)

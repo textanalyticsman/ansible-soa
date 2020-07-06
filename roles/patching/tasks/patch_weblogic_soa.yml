@@ -33,9 +33,11 @@
     command:  "{{ opatch_executable }} lsinventory -jdk {{ java_home }} \
       -oh {{oracle_home}}"
     register: lsinventory
+    changed_when: false
 
   - name: Applying Weblogic and SOA patches
     command:  "{{ opatch_executable }} apply -jdk {{ java_home }} -silent \
       -oh {{oracle_home}} {{ patch_directory }}/{{ item.patch }}" # In this case gets the patch i.e. "30970477"
     when: not lsinventory is search("{{ item.patch }}")
     loop: "{{ patches_list }}"
+    changed_when: false

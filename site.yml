@@ -11,3 +11,4 @@
 - import_playbook: installation.yml
 - import_playbook: patching.yml
 - import_playbook: rcu.yml
+- import_playbook: createsoadomain.yml

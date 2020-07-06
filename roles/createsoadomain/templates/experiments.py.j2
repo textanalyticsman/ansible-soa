@@ -1,7 +1,11 @@
 #jinja2: lstrip_blocks: True
 {% set extensionTemplates = soa_domain | json_query('[?template==`JRF_12213_TEMPLATES`][].extensiontemplates')%}
-{% set servers = soa_domain | json_query('[][servers][][]')%}
 
+{% set machines = soa_domain | json_query('[][machines][][]')%}
+{% set clusters = soa_domain | json_query('[][clusters][][]')%}
+{% set servers = soa_domain | json_query('[][servers][][]')%}
+{% set jfrTemplates = soa_domain | json_query('[?template==`JRF_12213_TEMPLATES`][]')%}
+{% set soaTemplates = soa_domain | json_query('[?template==`SOA_12213_TEMPLATES`][]')%}
 
 print('{{extensionTemplates}}')
 
@@ -26,14 +30,50 @@ SERVERS = {
 {% endfor %}
 }
 
+    MACHINES = {
+    {% for element in machines %}      
+        '{{ element.name }}':
+        {
+            'NMType': '{{element.nmtype}}',
+            'ListenAddress': '{{ element.listenaddress }}',
+            'ListenPort': {{ element.listenport }}
+        }{% if loop.nextitem is defined %},{% endif %}        
+    {% endfor %}
+    }
+
+    CLUSTERS = {
+    {% for element in clusters %}      
+        '{{ element.name }}':
+        {}{% if loop.nextitem is defined %},{% endif %}        
+    {% endfor %}
+    }    
+
     SERVERS = {
     {% for element in servers %}      
         '{{ element.name }}':
         {
             'ListenAddress': '{{element.listenaddress}}',
-            'ListenPort': '{{ element.listenport }}',
+            'ListenPort': {{ element.listenport }},
             'Machine': '{{ element.machine }}',
-            'Cluster': '{{ element.cluster }}'
-        }{% if loop.nextitem is defined %},{% endif %}        
+            # Writes a cluster element if this is not empty
+            {% if element.cluster != "" %}'Cluster': '{{ element.cluster }}'{% endif %} 
+            # Writes a comma if there is a next element
+        }{% if loop.nextitem is defined %},{% endif %} 
+    {% endfor %}
+    }
+
+    JRF_12213_TEMPLATES = {
+    {% for element in jfrTemplates %}      
+        'baseTemplate': '{{element.basetemplate}}',
+        'extensionTemplates': {{ element.extensiontemplates }},
+        'serverGroupsToTarget': {{ element.servergroups }}
+    {% endfor %}
+    }
+
+    SOA_12213_TEMPLATES = {
+    {% for element in soaTemplates %}      
+        'baseTemplate': '{{element.basetemplate}}',
+        'extensionTemplates': {{ element.extensiontemplates }},
+        'serverGroupsToTarget': {{ element.servergroups }}
     {% endfor %}
     }

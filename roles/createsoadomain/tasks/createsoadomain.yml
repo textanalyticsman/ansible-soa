@@ -1,0 +1,11 @@
+---
+
+  - name: Template to generate createSOADomain.py script
+    template:
+      src: createSOADomain.py.j2
+      dest: "{{ oracle_jinja_templates }}/createSOADomain.py"
+
+  - name: Creating a SOA domain
+    command: "{{ oracle_common }}/common/bin/wlst.sh \
+      {{ oracle_jinja_templates }}/createSOADomain.py"
+    changed_when: false

@@ -34,3 +34,4 @@
       -invPtrLoc {{ oracle_inventory_file }}"
     args:
       creates: "{{ install_weblogic_creates }}"
+    changed_when: false

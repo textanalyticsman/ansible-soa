@@ -21,3 +21,4 @@
       oracle_home={{ oracle_home }} -invPtrLoc {{ oracle_inventory_file }} "
     args:
       creates: "{{ patch_creates_file }}"
+    changed_when: false
