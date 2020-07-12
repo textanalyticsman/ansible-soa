@@ -1,5 +1,5 @@
 ---
- - hosts: soa[0]
+ - hosts: soa-admin
    remote_user: oracle
    tasks:
      - include_role:

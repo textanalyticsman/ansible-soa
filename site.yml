@@ -3,7 +3,7 @@
 # This is the main playbook, which is used to call all the roles that will allow the
 # installation of Oracle JDK, Oracle Weblogic and Oracle SOA
 # ####################################################################################
-- hosts: soa
+- hosts: soa-admin:soa-managed
   remote_user: oracle
   
 - import_playbook: ossettings.yml
@@ -12,3 +12,5 @@
 - import_playbook: patching.yml
 - import_playbook: rcu.yml
 - import_playbook: createsoadomain.yml
+- import_playbook: pack.yml
+- import_playbook: unpack.yml

@@ -29,6 +29,8 @@ oracle_inventory_file: "{{ oracle_inventory_dir }}/oraInst.loc"
 opatch_executable: "{{ oracle_home }}/OPatch/opatch"
 # Directory to save Jinja templates
 oracle_jinja_templates: "/u01/{{ oracle_user }}/templates"
+# Directory to create node manager services files
+systemd_directory: /usr/lib/systemd/system
 
 # This list of dictionaries is used to configure all the installers needed to create an
 # Oracle SOA domain. 
@@ -76,6 +78,11 @@ soa_domain:
       parentdir: "/u01/{{ oracle_user }}/domains"
       domainuser: weblogic
       domainpassword: "{{ vault_weblogic_password }}"
+      nmuser: nmUser
+      nmuserpassword: "{{ vault_nmuser_password }}"
+      templatePackName: soaDomainTemplate
+      templatePackDir: "/u01/{{ oracle_user }}/packdomaintemplate"
+      applicationsdir: "/u01/{{ oracle_user }}/domains/applications"
   - rcu:
       connectionstring: machine05.pegasus.net:1521:ofm12db
       dbuser: sys
@@ -95,34 +102,34 @@ soa_domain:
         - "-component SOAINFRA"
   - servers:
     - name: AdminServer
-      listenaddress: machine01.pegasus.net
+      listenaddress: "{{ groups['soa-admin'][0] }}"
       listenport: 7001
-      machine: machine01
+      machine: "{{ groups['soa-admin'][0].split('.')[0] }}" # For example, it gets machine01 from machine01.example.net
       cluster: ''  
     - name: soa_server01
-      listenaddress: machine02.pegasus.net
+      listenaddress: "{{ groups['soa-managed'][0] }}"
       listenport: 8001
-      machine: machine02
+      machine: "{{ groups['soa-managed'][0].split('.')[0] }}"
       cluster: soa_cluster
     - name: soa_server02
-      listenaddress: machine03.pegasus.net
+      listenaddress: "{{ groups['soa-managed'][1] }}"
       listenport: 8001
-      machine: machine03
+      machine: "{{ groups['soa-managed'][1].split('.')[0] }}"
       cluster: soa_cluster
   - clusters:
     - name: soa_cluster
   - machines:
-    - name: machine01
+    - name: "{{ groups['soa-admin'][0].split('.')[0] }}"
       nmtype: SSL
-      listenaddress: machine01.pegasus.net
+      listenaddress: "{{ groups['soa-admin'][0] }}"
       listenport: 5759
-    - name: machine02
+    - name: "{{ groups['soa-managed'][0].split('.')[0] }}"
       nmtype: SSL
-      listenaddress: machine02.pegasus.net
+      listenaddress: "{{ groups['soa-managed'][0] }}"
       listenport: 5759
-    - name: machine03
+    - name: "{{ groups['soa-managed'][1].split('.')[0] }}"
       nmtype: SSL
-      listenaddress: machine03.pegasus.net
+      listenaddress: "{{ groups['soa-managed'][1] }}"
       listenport: 5759
   - template: JRF_12213_TEMPLATES
     basetemplate: "{{ oracle_home }}/wlserver/common/templates/wls/wls.jar"

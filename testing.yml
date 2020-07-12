@@ -4,9 +4,9 @@
 # installation of Oracle JDK, Oracle Weblogic and Oracle SOA
 # ####################################################################################
 
-- hosts: soa
-  remote_user: "{{ oracle_user }}"
-  tasks:
+#- hosts: soa-admin
+#  remote_user: "{{ oracle_user }}"
+#  tasks:
 
   #  - name: Name
   #    debug:
@@ -46,5 +46,14 @@
   #- include_role:
   #    name: directories
 
+#  - include_role:
+#      name: pack
+
+- hosts: soa-admin:soa-managed
+  remote_user: "{{ oracle_user }}"
+  become: yes
+  become_user: root
+  tasks:
+  
   - include_role:
-      name: createsoadomain
+      name: nodemanagerservice

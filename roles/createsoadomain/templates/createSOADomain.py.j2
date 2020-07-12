@@ -17,7 +17,7 @@ class SOA12213Provisioner:
 {% set clusters = soa_domain | json_query('[][clusters][][]')%}
 {% set servers = soa_domain | json_query('[][servers][][]')%}
 {% set jfrTemplates = soa_domain | json_query('[?template==`JRF_12213_TEMPLATES`][]')%}
-{% set soaTemplates = soa_domain | json_query('[?template==`SOA_12213_TEMPLATES`][]')%}
+{% set soaTemplates = soa_domain | json_query('[?template==`SOA_12213_TEMPLATES`][]')%}    
 
     MACHINES = {
     {% for element in machines %}      
@@ -73,20 +73,20 @@ class SOA12213Provisioner:
         self.domainParentDir = self.validateDirectory(domainParentDir, create=True)
         return
 
-    def createSoaDomain(self, name, user, password, db, dbPrefix, dbPassword):
-        domainHome = self.createBaseDomain(name, user, password)
-        self.extendDomain(domainHome, db, dbPrefix, dbPassword)
+    def createSoaDomain(self, name, user, password, db, dbPrefix, dbPassword, appDir, nmUser, nmUserPassword):
+        domainHome = self.createBaseDomain(name, user, password, nmUser, nmUserPassword)
+        self.extendDomain(domainHome, db, dbPrefix, dbPassword, appDir,nmUser, nmUserPassword, name)
 
 
-    def createBaseDomain(self, name, user, password):
+    def createBaseDomain(self, name, user, password, nmUser, nmUserPassword):
         baseTemplate = self.replaceTokens(self.JRF_12213_TEMPLATES['baseTemplate'])
 
         readTemplate(baseTemplate)
         setOption('DomainName', name)
         setOption('JavaHome', self.javaHome)
         setOption('ServerStartMode', 'prod')
-        set('Name', domainName)
-        cd('/Security/' + domainName + '/User/weblogic')
+        set('Name', name)
+        cd('/Security/' + name + '/User/weblogic')
         set('Name', user)
         set('Password', password)
 
@@ -131,10 +131,10 @@ class SOA12213Provisioner:
         return domainHome
 
 
-    def extendDomain(self, domainHome, db, dbPrefix, dbPassword):
+    def extendDomain(self, domainHome, db, dbPrefix, dbPassword, appDir, nmUser, nmUserPassword, name):
         print 'Extending domain at ' + domainHome
         readDomain(domainHome)
-        setOption('AppDir', self.domainParentDir + '/applications')
+        setOption('AppDir', appDir)
 
         print 'Applying JRF templates...'
         for extensionTemplate in self.JRF_12213_TEMPLATES['extensionTemplates']:
@@ -181,7 +181,14 @@ class SOA12213Provisioner:
         print "Set WLS clusters as target of defaultCoherenceCluster:[" + ",".join(self.CLUSTERS) + "]"
         cd('/CoherenceClusterSystemResource/defaultCoherenceCluster')
         set('Target', ",".join(self.CLUSTERS))
-		 
+
+        # Setting the node manager user and password
+        print 'Setting credentials for node manager'
+        cd('/')
+        cd('/SecurityConfiguration/' + domainName)
+        set('NodeManagerUsername', nmUser)
+        set('NodeManagerPasswordEncrypted', nmUserPassword)
+
         print 'Preparing to update domain...'
         updateDomain()
         print 'Domain updated successfully'
@@ -243,6 +250,12 @@ rcuSchemaPrefix = '{{ soa_domain | json_query('[][rcu][][].schemaprefix')|join('
 
 rcuSchemaPassword = '{{ soa_domain | json_query('[][rcu][][].schemapassword')|join(',') }}'
 
+applicationsDir = '{{ soa_domain | json_query('[][home][][].applicationsdir')|join(',') }}'
+
+nmUser = '{{ soa_domain | json_query('[][home][][].nmuser')|join(',') }}'
+
+nmUserPassword = '{{ soa_domain | json_query('[][home][][].nmuserpassword')|join(',') }}'
+
 
 provisioner = SOA12213Provisioner(oracleHome, javaHome, domainParentDir)
-provisioner.createSoaDomain(domainName, domainUser, domainPassword, rcuDb, rcuSchemaPrefix, rcuSchemaPassword)
+provisioner.createSoaDomain(domainName, domainUser, domainPassword, rcuDb, rcuSchemaPrefix, rcuSchemaPassword, applicationsDir, nmUser, nmUserPassword)

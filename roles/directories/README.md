@@ -37,7 +37,7 @@ Example Playbook
 
 This roles can be executed as is shown below.
 
-      - hosts: soa
+      - hosts: soa-admin:soa-managed
         remote_user: oracle
         tasks:
          - include_role:
