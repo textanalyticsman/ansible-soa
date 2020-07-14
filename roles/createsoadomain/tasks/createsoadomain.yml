@@ -1,4 +1,8 @@
 ---
+  - name: Getting configuration to create directory for boot.properties
+    set_fact:
+      domainParentDir: "{{ soa_domain | json_query('[][home][][].parentdir')|join(',') }}"
+      domainName: "{{ soa_domain | json_query('[][home][][].domainname')|join(',') }}"
 
   - name: Template to generate createSOADomain.py script
     template:
@@ -8,4 +12,19 @@
   - name: Creating a SOA domain
     command: "{{ oracle_common }}/common/bin/wlst.sh \
       {{ oracle_jinja_templates }}/createSOADomain.py"
+    args:
+      creates: "{{ domainParentDir }}/{{ domainName }}"
     changed_when: false
+
+  - name: Creating security directory for boot.properties file
+    file:
+      path: "{{ domainParentDir }}/{{ domainName }}/servers/AdminServer/security"
+      state: directory
+      owner: "{{ oracle_user }}"
+      group: "{{ oracle_group }}"
+      mode: 0755
+
+  - name: Creating boot.properties file
+    template:
+      src: boot.properties.j2
+      dest: "{{ domainParentDir }}/{{ domainName }}/servers/AdminServer/security/boot.properties"

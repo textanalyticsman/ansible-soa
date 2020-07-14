@@ -79,57 +79,61 @@ class SOA12213Provisioner:
 
 
     def createBaseDomain(self, name, user, password, nmUser, nmUserPassword):
-        baseTemplate = self.replaceTokens(self.JRF_12213_TEMPLATES['baseTemplate'])
+        try:
+            baseTemplate = self.replaceTokens(self.JRF_12213_TEMPLATES['baseTemplate'])
 
-        readTemplate(baseTemplate)
-        setOption('DomainName', name)
-        setOption('JavaHome', self.javaHome)
-        setOption('ServerStartMode', 'prod')
-        set('Name', name)
-        cd('/Security/' + name + '/User/weblogic')
-        set('Name', user)
-        set('Password', password)
+            readTemplate(baseTemplate)
+            setOption('DomainName', name)
+            setOption('JavaHome', self.javaHome)
+            setOption('ServerStartMode', 'prod')
+            set('Name', name)
+            cd('/Security/' + name + '/User/weblogic')
+            set('Name', user)
+            set('Password', password)
 
-        print 'Creating cluster...'
-        for cluster in self.CLUSTERS:
-            cd('/')
-            create(cluster, 'Cluster')
-            cd('Cluster/' + cluster)
-            for param in  self.CLUSTERS[cluster]:
-                set(param, self.CLUSTERS[cluster][param])
+            print 'Creating cluster...'
+            for cluster in self.CLUSTERS:
+                cd('/')
+                create(cluster, 'Cluster')
+                cd('Cluster/' + cluster)
+                for param in  self.CLUSTERS[cluster]:
+                    set(param, self.CLUSTERS[cluster][param])
 
-        print 'Creating Node Managers...'
-        for machine in self.MACHINES:
-            cd('/')
-            create(machine, 'Machine')
-            cd('Machine/' + machine)
-            create(machine, 'NodeManager')
-            cd('NodeManager/' + machine)
-            for param in self.MACHINES[machine]:
-                set(param, self.MACHINES[machine][param])
+            print 'Creating Node Managers...'
+            for machine in self.MACHINES:
+                cd('/')
+                create(machine, 'Machine')
+                cd('Machine/' + machine)
+                create(machine, 'NodeManager')
+                cd('NodeManager/' + machine)
+                for param in self.MACHINES[machine]:
+                    set(param, self.MACHINES[machine][param])
 
-        print 'Creating Servers...'
-        for server in self.SERVERS:
-            cd('/')
-            if server == 'AdminServer':
-            	cd('Server/' + server)
-            	for param in self.SERVERS[server]:
-            		set(param, self.SERVERS[server][param])
-                continue
-            create(server, 'Server')
-            cd('Server/' + server)
-            for param in self.SERVERS[server]:
-                set(param, self.SERVERS[server][param])
+            print 'Creating Servers...'
+            for server in self.SERVERS:
+                cd('/')
+                if server == 'AdminServer':
+                    cd('Server/' + server)
+                    for param in self.SERVERS[server]:
+                        set(param, self.SERVERS[server][param])
+                    continue
+                create(server, 'Server')
+                cd('Server/' + server)
+                for param in self.SERVERS[server]:
+                    set(param, self.SERVERS[server][param])
 
-        setOption('OverwriteDomain', 'true')
-        domainHome = self.domainParentDir + '/' + name
+            setOption('OverwriteDomain', 'true')
+            domainHome = self.domainParentDir + '/' + name
 
-        print 'Writing base domain...'
-        writeDomain(domainHome)
-        closeTemplate()
-        print 'Base domain created at ' + domainHome
-        return domainHome
-
+            print 'Writing base domain...'
+            writeDomain(domainHome)
+            closeTemplate()
+            print 'Base domain created at ' + domainHome
+            return domainHome
+        except Exception, e:
+            dumpStack();
+            print 'createBaseDomain finished with Exception: ' + str(e);
+            sys.exit(1);
 
     def extendDomain(self, domainHome, db, dbPrefix, dbPassword, appDir, nmUser, nmUserPassword, name):
         print 'Extending domain at ' + domainHome
@@ -160,6 +164,10 @@ class SOA12213Provisioner:
 
         print 'Getting Database Defaults...'
         getDatabaseDefaults()
+
+        print 'Deleting server soa_server1 created by default...'
+        cd('/')
+        delete('soa_server1','Server')
 
         print 'Targeting Server Groups...'
         serverGroupsToTarget = list(self.JRF_12213_TEMPLATES['serverGroupsToTarget'])

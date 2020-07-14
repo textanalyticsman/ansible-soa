@@ -32,5 +32,5 @@
       -template={{ domainTemplateLocation }}/{{ domainTemplateName }}.jar \
       -app_dir={{ applicationsDir }}"
     args:
-      creates: "{{ domainParentDir }}/{{ domainName }}"      
+      creates: "{{ domainParentDir }}/{{ domainName }}"
     changed_when: false

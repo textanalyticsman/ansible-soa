@@ -73,16 +73,6 @@ soa_installers:
         zipname: p30995852_122140_Generic.zip
 
 soa_domain:
-  - home:
-      domainname: soa_atenea
-      parentdir: "/u01/{{ oracle_user }}/domains"
-      domainuser: weblogic
-      domainpassword: "{{ vault_weblogic_password }}"
-      nmuser: nmUser
-      nmuserpassword: "{{ vault_nmuser_password }}"
-      templatePackName: soaDomainTemplate
-      templatePackDir: "/u01/{{ oracle_user }}/packdomaintemplate"
-      applicationsdir: "/u01/{{ oracle_user }}/domains/applications"
   - rcu:
       connectionstring: machine05.pegasus.net:1521:ofm12db
       dbuser: sys
@@ -99,7 +89,17 @@ soa_domain:
         - "-component OPSS"
         - "-component UCSUMS"
         - "-component WLS"
-        - "-component SOAINFRA"
+        - "-component SOAINFRA"  
+  - home:
+      domainname: soa_atenea
+      parentdir: "/u01/{{ oracle_user }}/domains"
+      domainuser: weblogic
+      domainpassword: "{{ vault_weblogic_password }}"
+      nmuser: nmUser
+      nmuserpassword: "{{ vault_nmuser_password }}"
+      templatePackName: soaDomainTemplate
+      templatePackDir: "/u01/{{ oracle_user }}/packdomaintemplate"
+      applicationsdir: "/u01/{{ oracle_user }}/domains/applications"
   - servers:
     - name: AdminServer
       listenaddress: "{{ groups['soa-admin'][0] }}"

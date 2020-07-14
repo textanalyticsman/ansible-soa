@@ -14,3 +14,4 @@
 - import_playbook: createsoadomain.yml
 - import_playbook: pack.yml
 - import_playbook: unpack.yml
+- import_playbook: nodemanagerervice.yml
