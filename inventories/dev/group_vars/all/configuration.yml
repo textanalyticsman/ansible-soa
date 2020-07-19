@@ -131,13 +131,34 @@ soa_domain:
       nmtype: SSL
       listenaddress: "{{ groups['soa-managed'][1] }}"
       listenport: 5759
+  - nodemanager:
+    - loglimit: 0
+    - propertiesversion: 12.2.1.4.0
+    - authenticationenabled: true
+    - loglevel: INFO
+    - domainsfileenabled: true
+    - listenaddress:
+    - nativeversionenabled: true
+    - listenport: 5759
+    - logtostderr: true
+    - startscriptname: startWebLogic.sh
+    - securelistener: true
+    - logcount: 1
+    - quitenabled: false
+    - logappend: true
+    - stopscriptenabled: false
+    - statecheckinterval: 500
+    - crashrecoveryenabled: true
+    - startscriptenabled: true
+    - logformatter: weblogic.nodemanager.server.LogFormatter
+    - listenbacklog: 50
   - template: JRF_12213_TEMPLATES
     basetemplate: "{{ oracle_home }}/wlserver/common/templates/wls/wls.jar"
     extensiontemplates:
-      - "{{ oracle_home }}/oracle_common/common/templates/wls/oracle.jrf_template.jar"
-      - "{{ oracle_home }}/oracle_common/common/templates/wls/oracle.jrf.ws.async_template.jar"
-      - "{{ oracle_home }}/oracle_common/common/templates/wls/oracle.wsmpm_template.jar"
-      - "{{ oracle_home }}/oracle_common/common/templates/wls/oracle.ums_template.jar"
+      - "{{ oracle_common }}/common/templates/wls/oracle.jrf_template.jar"
+      - "{{ oracle_common }}/common/templates/wls/oracle.jrf.ws.async_template.jar"
+      - "{{ oracle_common }}/common/templates/wls/oracle.wsmpm_template.jar"
+      - "{{ oracle_common }}/common/templates/wls/oracle.ums_template.jar"
       - "{{ oracle_home }}/em/common/templates/wls/oracle.em_wls_template.jar"
     servergroups:
       - JRF-MAN-SVR
@@ -148,3 +169,31 @@ soa_domain:
       - "{{ oracle_home }}/soa/common/templates/wls/oracle.soa_template.jar"
     servergroups:
       - SOA-MGD-SVRS-ONLY
+  - certificates:
+      keystore: CustomIdentityAndCustomTrust
+      keystoredir: "/u01/{{ oracle_user }}/domains/certificates"
+      keystorefile: atenea.jks
+      keystoretype: JKS
+      keystorealias: ateneasoakey      
+      keystorepass: "{{ vault_keystore_pass }}"
+      truststorefile: ateneatrust.jks
+      truststore: CustomTrust
+      truststorepass: "{{ vault_truststore_pass }}"
+      truststorealias: ateneasoatrust      
+      privatekeypass: "{{ vault_privatekey_pass }}"      
+      privatekeyfile: atenea.pem
+      privatekeycipher: auto
+      privatekeytype: RSA
+      privatekeysize: 4096
+      csrfile: atenea.csr
+      csrcountry: PE    # Country name must be a 2 character country code
+      csrorganizationname: Atenea
+      csremail: fakemail@atenea.com
+      # This is important for hostname verification
+      # Subject Alternative Name needs DNS: prefix
+      csrsubjectaltname: "DNS:{{ groups['soa-admin'][0] }},DNS:{{ groups['soa-managed'][0] }},DNS:{{ groups['soa-managed'][1] }}"
+      certfile: atenea.crt
+      certprovider: selfsigned
+      pkcs12file: atenea.p12
+      pkcs12passphrase: "{{ vault_pkcs12_pass }}"
+      

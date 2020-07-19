@@ -51,9 +51,16 @@
 
 - hosts: soa-admin:soa-managed
   remote_user: "{{ oracle_user }}"
-  become: yes
-  become_user: root
   tasks:
-  
+
+#  - include_role:
+#      name: os_settings
+
+#  - include_role:
+#      name: certificates
+
   - include_role:
-      name: nodemanagerservice
+      name: configurenodemanager      
+
+  - include_role:
+      name: configurewlst      

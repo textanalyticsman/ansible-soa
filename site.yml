@@ -15,3 +15,6 @@
 - import_playbook: pack.yml
 - import_playbook: unpack.yml
 - import_playbook: nodemanagerervice.yml
+- import_playbook: certificates.yml
+- import_playbook: configurenodemanager.yml
+- import_playbook: configurewlst.yml

@@ -30,3 +30,13 @@
    pip:
      name: pexpect
    become: true
+
+ - name: Using pip to install cryptography
+   pip:
+     name: cryptography
+   become: true   
+
+ - name: Using pip to install pyOpenSSL
+   pip:
+     name: pyOpenSSL
+   become: true

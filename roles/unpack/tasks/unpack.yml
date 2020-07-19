@@ -19,7 +19,7 @@
       group: "{{ oracle_group }}"
       mode: 0755        
 
-  - name: Pulling domain template from Admin Host
+  - name: Pushing domain template from Admin Host into managed hosts
     synchronize:
       mode: push
       src: "{{ domainTemplateLocation }}/{{ domainTemplateName }}.jar"

@@ -1,0 +1,11 @@
+---
+  - name: Getting configuration to modify nodemanager.properties
+    set_fact:
+      domainParentDir: "{{ soa_domain | json_query('[][home][][].parentdir')|join(',') }}"
+      domainName: "{{ soa_domain | json_query('[][home][][].domainname')|join(',') }}"
+
+  - name: "Template to modify {{ domainParentDir }}/{{ domainName }}/nodemanager/nodemanager.properties"
+    template:
+      src: nodemanager.properties.j2
+      dest: "{{ domainParentDir }}/{{ domainName }}/nodemanager/nodemanager.properties"
+      backup: yes
