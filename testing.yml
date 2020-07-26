@@ -59,8 +59,14 @@
 #  - include_role:
 #      name: certificates
 
-  - include_role:
-      name: configurenodemanager      
+#  - include_role:
+#      name: configurenodemanager      
 
   - include_role:
-      name: configurewlst      
+      name: configurewlst
+
+#- hosts: soa-admin
+#  remote_user: "{{ oracle_user }}"
+#  tasks:
+#  - include_role:
+#      name: configuredomainpkissl

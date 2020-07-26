@@ -1,0 +1,10 @@
+---
+  - name: Template to generate configuredomainpkissl.py script
+    template:
+      src: configuredomainpkissl.py.j2
+      dest: "{{ oracle_jinja_templates }}/configuredomainpkissl.py"
+
+  - name: Configuring PKI/SSL for SOA domain
+    command: "{{ oracle_common }}/common/bin/wlst.sh \
+      {{ oracle_jinja_templates }}/configuredomainpkissl.py"
+    changed_when: false

@@ -91,7 +91,20 @@
       executable: "{{ java_home }}/bin/keytool"
       keystore_create: yes
     run_once: true
-    delegate_to: "{{ groups['soa-admin'][0] }}"        
+    delegate_to: "{{ groups['soa-admin'][0] }}"
+
+  # https://github.com/ansible/ansible/issues/43039
+  - name: Fixing the private key password
+    expect:
+      command: "keytool -alias {{ keyStoreAlias }} -keystore {{ keyStoreDir }}/{{ keyStoreFile }} \
+        -storepass {{ keyStorePass }} -keypasswd -new {{ privateKeyPass }}"
+      responses:
+        Enter key password for .*: "{{ privateKeyPass }}"
+    no_log: yes
+    changed_when: false
+    run_once: true
+    delegate_to: "{{ groups['soa-admin'][0] }}"    
+    
   
   # This trust store is going to be used by internal customers such as
   # WLST on SSL

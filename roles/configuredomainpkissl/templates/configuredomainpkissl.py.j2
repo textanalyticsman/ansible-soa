@@ -1,0 +1,160 @@
+#jinja2: lstrip_blocks: True
+
+import os
+import sys
+import com.oracle.cie.domain.script.jython.WLSTException as WLSTException
+
+class ConfigureDomainWithPKISSL:
+
+    def __init__(self, domainParentDir, domainName):
+        self.domainParentDir = self.validateDirectory(domainParentDir)
+        self.domainName = domainName
+        self.domainHome = self.domainParentDir + '/' + self.domainName
+    
+    def openDomain(self):
+        try:
+            print 'Reading domain: ' + self.domainHome
+            readDomain(self.domainHome)
+        except Exception, e:
+            dumpStack()
+            closeDomain()
+            print 'openDomain has raised an exception'
+            sys.exit(1)
+
+    def updateAndCloseDomain(self):
+        try:
+            print 'Updating domain: ' + self.domainHome
+            updateDomain()
+            print 'Closing domain: ' + self.domainHome
+            closeDomain()
+        except Exception, e:
+            dumpStack()
+            closeDomain()
+            print 'updateDomain has raised an exception'
+            sys.exit(1)
+
+
+    def configurePKIPrivateTrust(self, serverName, keyStores, customIdentityKeyStoreFileName, 
+            customIdentityKeyStorePassPhrase,customIdentityKeyStoreType, customTrustKeyStoreFileName, 
+            customTrustKeyStorePassPhrase):
+        try:
+            cd('/')
+            print 'cding into Servers/' + serverName
+            cd('Servers/' + serverName)
+            print 'Setting keyStores to: ' + keyStores
+            cmo.setKeyStores(keyStores)
+            print 'Setting customIdentityKeyStoreFileName to: ' + customIdentityKeyStoreFileName
+            cmo.setCustomIdentityKeyStoreFileName(customIdentityKeyStoreFileName)
+            print 'Setting customIdentityKeyStorePassPhrase'
+            encryptedKeyStorePassword = encrypt(customIdentityKeyStorePassPhrase, self.domainHome)
+            cmo.setCustomIdentityKeyStorePassPhraseEncrypted(encryptedKeyStorePassword)
+            print 'Setting customIdentityKeyStoreType to: ' + customIdentityKeyStoreType
+            cmo.setCustomIdentityKeyStoreType(customIdentityKeyStoreType)
+            print 'Setting customTrustKeyStoreFileName to: ' + customTrustKeyStoreFileName
+            cmo.setCustomTrustKeyStoreFileName(customTrustKeyStoreFileName)
+            print 'Setting customTrustKeyStorePassPhrase'
+            encryptedTrustStorePassword = encrypt(customTrustKeyStorePassPhrase, self.domainHome)
+            cmo.setCustomTrustKeyStorePassPhraseEncrypted(encryptedTrustStorePassword)         
+        except Exception, e:
+            dumpStack()
+            closeDomain()
+            print 'configurePKIPrivateTrust has raised an exception'
+            sys.exit(1)
+    
+    def configureSSL(self, serverName, identityAndTrustLocations, serverPrivateKeyAlias, 
+            serverPrivateKeyPassPhrase,hostnameVerificationIgnored, hostnameVerifier, 
+            twoWaySSLEnabled):
+        try:
+            cd('/')
+            print 'cding into Servers/' + serverName
+            cd('Servers/' + serverName)
+            print 'Creating SSL MBean'
+            create(serverName, 'SSL')
+            print 'cding into SSL/' + serverName
+            cd('SSL/' + serverName)
+            print 'Setting identityAndTrustLocations to: ' + identityAndTrustLocations
+            cmo.setIdentityAndTrustLocations(identityAndTrustLocations)
+            print 'Setting serverPrivateKeyAlias to: ' + serverPrivateKeyAlias
+            cmo.setServerPrivateKeyAlias(serverPrivateKeyAlias)
+            print 'Setting serverPrivateKeyPassPhrase'
+            encryptedKeyPassword = encrypt(serverPrivateKeyPassPhrase, self.domainHome)
+            cmo.setServerPrivateKeyPassPhraseEncrypted(encryptedKeyPassword)
+            print 'Setting hostnameVerificationIgnored to: ' + str(hostnameVerificationIgnored)
+            cmo.setHostnameVerificationIgnored(hostnameVerificationIgnored)
+            print 'Setting hostnameVerifier to: ' + hostnameVerifier
+            cmo.setHostnameVerifier(hostnameVerifier)
+            print 'Setting twoWaySSLEnabled to: ' + str(twoWaySSLEnabled)
+            cmo.setTwoWaySSLEnabled(twoWaySSLEnabled)
+        except Exception, e:
+            dumpStack()
+            closeDomain()
+            print 'configureSSL has raised an exception'
+            sys.exit(1)
+        
+    def configurePKIAndSSL(self, keyStores, customIdentityKeyStoreFileName, customIdentityKeyStorePassPhrase,
+            customIdentityKeyStoreType, customTrustKeyStoreFileName, customTrustKeyStorePassPhrase,
+            identityAndTrustLocations, serverPrivateKeyAlias, serverPrivateKeyPassPhrase, hostnameVerificationIgnored,
+            hostnameVerifier, twoWaySSLEnabled):
+        try:
+            self.openDomain()
+            listOfServersInDomain = cmo.getServers()
+            for server in listOfServersInDomain:
+                serverName = server.getName()
+                # Calling the procedure to configure certificates
+                self.configurePKIPrivateTrust(serverName, keyStores, customIdentityKeyStoreFileName, customIdentityKeyStorePassPhrase,
+                                              customIdentityKeyStoreType, customTrustKeyStoreFileName, customTrustKeyStorePassPhrase)
+                # Calling the procedure to configure SSL options
+                self.configureSSL(serverName, identityAndTrustLocations, serverPrivateKeyAlias, serverPrivateKeyPassPhrase,
+                                  hostnameVerificationIgnored, hostnameVerifier, twoWaySSLEnabled)
+            self.updateAndCloseDomain()                
+        except Exception, e:
+            print 'configurePKIAndSSL has raised an exception'
+            sys.exit(1)        
+
+    def validateDirectory(self, dirName):
+        directory = os.path.realpath(dirName)
+        if not os.path.exists(directory):
+            message = 'Directory ' + directory + ' does not exist'
+            raise WLSTException(message)
+        elif not os.path.isdir(directory):
+            message = 'Directory ' + directory + ' is not a directory'
+            raise WLSTException(message)
+        return self.fixupPath(directory)
+
+    def fixupPath(self, path):
+        result = path
+        if path is not None:
+            result = path.replace('\\', '/')
+        return result        
+
+
+#############################
+# Entry point to the script #
+#############################
+
+domainParentDir = '{{ soa_domain | json_query('[][home][][].parentdir')|join(',') }}'
+domainName = '{{ soa_domain | json_query('[][home][][].domainname')|join(',') }}'
+
+keyDirectory = '{{ soa_domain | json_query('[][certificates][][].keystoredir')|join(',') }}'
+keyFile = '{{ soa_domain | json_query('[][certificates][][].keystorefile')|join(',') }}'
+trustFile = '{{ soa_domain | json_query('[][certificates][][].truststorefile')|join(',') }}'
+
+keyStores = '{{ soa_domain | json_query('[][certificates][][].keystore')|join(',') }}'
+customIdentityKeyStoreFileName = keyDirectory + '/' + keyFile
+customIdentityKeyStorePassPhrase = '{{ soa_domain | json_query('[][certificates][][].keystorepass')|join(',') }}'
+customIdentityKeyStoreType = '{{ soa_domain | json_query('[][certificates][][].keystoretype')|join(',') }}'
+customTrustKeyStoreFileName = keyDirectory + '/' + trustFile
+customTrustKeyStorePassPhrase = '{{ soa_domain | json_query('[][certificates][][].truststorepass')|join(',') }}'
+identityAndTrustLocations = '{{ soa_domain | json_query('[][ssl][][].identityandtrustlocations')|join(',') }}'
+serverPrivateKeyAlias = '{{ soa_domain | json_query('[][certificates][][].keystorealias')|join(',') }}'
+serverPrivateKeyPassPhrase = '{{ soa_domain | json_query('[][certificates][][].privatekeypass')|join(',') }}'
+hostnameVerificationIgnored = {{ soa_domain | json_query('[][ssl][][].hostnameverificationignored')|join(',') }}
+hostnameVerifier = '{{ soa_domain | json_query('[][ssl][][].hostnameverifier')|join(',') }}'
+twoWaySSLEnabled = {{ soa_domain | json_query('[][ssl][][].twowaysslenabled')|join(',') }}
+
+configurer = ConfigureDomainWithPKISSL(domainParentDir, domainName)
+
+configurer.configurePKIAndSSL(keyStores, customIdentityKeyStoreFileName, customIdentityKeyStorePassPhrase,
+                             customIdentityKeyStoreType, customTrustKeyStoreFileName, customTrustKeyStorePassPhrase,
+                             identityAndTrustLocations, serverPrivateKeyAlias, serverPrivateKeyPassPhrase, hostnameVerificationIgnored,
+                             hostnameVerifier, twoWaySSLEnabled)

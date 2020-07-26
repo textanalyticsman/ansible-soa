@@ -1,4 +1,5 @@
 {% set TrustKeyStore = soa_domain | json_query('[][certificates][][].truststore')|join(',') %}
+{% set keyStoreDir = soa_domain | json_query('[][certificates][][].keystoredir')|join(',') %}
 {% set CustomTrustKeyStoreFileName = soa_domain | json_query('[][certificates][][].truststorefile')|join(',') %}
 {% set CustomTrustKeyStoreType = soa_domain | json_query('[][certificates][][].keystoretype')|join(',') %}
 {% set CustomTrustKeyStorePassPhrase = soa_domain | json_query('[][certificates][][].truststorepass')|join(',') %}
@@ -20,7 +21,7 @@ export MW_HOME
 . ${MW_HOME}/oracle_common/common/bin/setWlstEnv_internal.sh
 
 JVM_ARGS="${JVM_ARGS} -Dweblogic.security.TrustKeyStore={{ TrustKeyStore }} \
--Dweblogic.security.CustomTrustKeyStoreFileName={{ CustomTrustKeyStoreFileName }} \
+-Dweblogic.security.CustomTrustKeyStoreFileName={{ keyStoreDir }}/{{ CustomTrustKeyStoreFileName }} \
 -Dweblogic.security.CustomTrustKeyStoreType={{ CustomTrustKeyStoreType }} \
 -Dweblogic.security.CustomTrustKeyStorePassPhrase={{ CustomTrustKeyStorePassPhrase }}"
 

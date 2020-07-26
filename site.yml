@@ -18,3 +18,4 @@
 - import_playbook: certificates.yml
 - import_playbook: configurenodemanager.yml
 - import_playbook: configurewlst.yml
+- import_playbook: configuredomainpkissl.yml
