@@ -1,3 +1,5 @@
+Ansible Playbooks for SOA 12.2.1.4
+===================================
 This document explains how to use the set of Ansible playbooks provided in this repository to install, patch and configure an Oracle SOA domain 12.2.1.4.
 
 Architecture implemented
@@ -116,7 +118,7 @@ How could I run this?
 
 You should execute this
 
-ansible-playbook --ask-vault-pass -i inventories/dev/hosts site.yml --extra-vars " environment\_chosen=dev" -vvv
+    ansible-playbook --ask-vault-pass -i inventories/dev/hosts site.yml --extra-vars " environment\_chosen=dev" -vvv
 
 The previous command will ask for the vault password, which is **oracle**
 
@@ -185,17 +187,17 @@ As I have not had time to create a playbook to start services, you should do thi
 
 ### On the AdminServer machine.
 
-sudo systemctl start nmadminserver.service
+    sudo systemctl start nmadminserver.service
 
-/u01/oracle/product/fmw12214/oracle\_common/common/bin/wlst.sh
+    /u01/oracle/product/fmw12214/oracle\_common/common/bin/wlst.sh
 
-nmConnect('nmUser', 'weblogic123456', 'machine01.pegasus.net', '5759', 'soa\_atenea', '/u01/oracle/domains/soa\_atenea', 'ssl')
+    nmConnect('nmUser', 'weblogic123456', 'machine01.pegasus.net', '5759', 'soa\_atenea', '/u01/oracle/domains/soa\_atenea', 'ssl')
 
-nmStart('AdminServer')
+    nmStart('AdminServer')
 
 ### On managed server machines
 
-sudo systemctl start nmmanagedserver.service
+    sudo systemctl start nmmanagedserver.service
 
 ### Weblogic console.
 
