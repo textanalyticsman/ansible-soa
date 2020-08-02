@@ -118,7 +118,7 @@ How could I run this?
 
 You should execute this
 
-    ansible-playbook --ask-vault-pass -i inventories/dev/hosts site.yml --extra-vars " environment\_chosen=dev" -vvv
+    ansible-playbook --ask-vault-pass -i inventories/dev/hosts site.yml --extra-vars "environment_chosen=dev" -vvv
 
 The previous command will ask for the vault password, which is **oracle**
 
@@ -189,9 +189,9 @@ As I have not had time to create a playbook to start services, you should do thi
 
     sudo systemctl start nmadminserver.service
 
-    /u01/oracle/product/fmw12214/oracle\_common/common/bin/wlst.sh
+    /u01/oracle/product/fmw12214/oracle_common/common/bin/wlst.sh
 
-    nmConnect('nmUser', 'weblogic123456', 'machine01.pegasus.net', '5759', 'soa\_atenea', '/u01/oracle/domains/soa\_atenea', 'ssl')
+    nmConnect('nmUser', 'weblogic123456', 'machine01.pegasus.net', '5759', 'soa_atenea', '/u01/oracle/domains/soa_atenea', 'ssl')
 
     nmStart('AdminServer')
 
