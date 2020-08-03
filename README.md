@@ -207,7 +207,7 @@ Finally use the Weblogic console to start managed servers; if everything goes we
 
 ### Do you need support?
 
-You can contact me here https://www.linkedin.com/in/raul-castillo-11051980/
+You can contact me here complexsystemsblog@gmail.com
 
   [this]: https://github.com/oracle/weblogic-deploy-tooling/blob/master/site/discover.md
   [here]: https://github.com/textanalyticsman/ansible-soa/blob/master/inventories/dev/group_vars/all/configuration.yml
